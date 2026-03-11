@@ -17,6 +17,9 @@ vpath %.cpp $(SRC_DIRS)
 ###############                  SOURCE FILES                     ##############
 ################################################################################
 
+ANAKIN_FILES := anakin.cpp
+ANAKIN := $(addprefix anakin_part/, $(ANAKIN_FILES))
+
 SOCKETS_FILES := sockets.cpp
 SOCKETS := $(addprefix sockets/, $(SOCKETS_FILES))
 
@@ -24,7 +27,7 @@ PARSER_FILES := parse_config.cpp
 PARSER := $(addprefix parsing/, $(PARSER_FILES))
 
 SRC_FILES := main.cpp webserv.cpp
-SRC := $(addprefix src/, $(SRC_FILES) $(PARSER) $(SOCKETS))
+SRC := $(addprefix src/, $(SRC_FILES) $(PARSER) $(SOCKETS) $(ANAKIN))
 
 ################################################################################
 ###############                     RULES                         ##############
