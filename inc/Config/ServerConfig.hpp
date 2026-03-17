@@ -8,6 +8,7 @@ class ServerConfig {
 		int port;
 		std::string host;
 		std::string index;
+		std::string root;
 
 		std::vector<LocationConfig> locations;
 };
