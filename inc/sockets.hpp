@@ -25,7 +25,9 @@ class Socket{
         FD_CHECK _fd_flag;
 		size_t	_index;
         struct pollfd _poll_fd;
-
+        std::string _read_buffer;
+        std::string _write_buffer;
+        
         Socket();
         ~Socket();
         Socket(struct pollfd pollfd, FD_CHECK is_server, int index);
