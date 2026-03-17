@@ -1,28 +1,35 @@
 #include "sockets.hpp"
 
-void print_poll_fds(std::vector<struct pollfd> &poll_fds)
+void print_poll_fds(std::vector<Socket> &poll_fds)
 {
     std::cout << YELLOW << "Poll list size: " << poll_fds.size() << RESET << std::endl;
     for (size_t i = 0; i < poll_fds.size(); i++){
-        std::cout << YELLOW << "FD[" << i << "]: " << poll_fds[i].fd << RESET << std::endl;
+        std::cout << YELLOW << "FD[" << i << "]: " << poll_fds[i]._poll_fd.fd << RESET << std::endl;
     }
 }
 
-void event_loop(std::vector<struct pollfd> fds){
+void event_loop(std::vector<Socket> fds){
 	
 	while (true){
 		bool break_flag = false;
-		int ready = poll(fds.data(), fds.size(), -1);
-		if (ready == -1){
-			std::cerr << RED << "poll error" << RESET << std::endl;
-			break;
-		}
-		for(size_t i = 0; i < fds.size(); i++){
-			if(fds[i].revents & POLLIN){
-				std::cout << BLUE << "POLLIN" << RESET << std::endl;
-				break_flag = true;
-			}
-		}
+
+		std::vector<struct pollfd> poll_array(fds.size());
+        
+        for (size_t i = 0; i < fds.size(); i++){
+            poll_array[i] = fds[i]._poll_fd;
+        }
+        
+        int ready = poll(poll_array.data(), fds.size(), -1);
+        if (ready == -1){
+            std::cerr << RED << "poll error" << RESET << std::endl;
+            break;
+        }
+        for(size_t i = 0; i < fds.size(); i++){
+            if(poll_array[i].revents & POLLIN){
+                std::cout << BLUE << "POLLIN" << RESET << std::endl;
+                break_flag = true;
+            }
+        }
 		if(break_flag)
 			break;
 	}
@@ -33,20 +40,20 @@ void setup_sockets(void)
 {
     std::string port("8080");
     
-    std::vector<struct pollfd> poll_fds;
-
+    std::vector<Socket> poll_fds;
     int i = 0;
     while(i < 1){
         int socket_fd = create_socket_fds(port);
         if(socket_fd == -1){
 			return ;
         }
-        struct pollfd tmp;
-        tmp.fd = socket_fd;
-        tmp.events = POLLIN;
-        tmp.revents = 0;
+		Socket fd;
+		fd._poll_fd.fd = socket_fd;
+        fd._poll_fd.events = POLLIN;
+        fd._poll_fd.revents = 0;
+        fd._index = i;
 
-        poll_fds.push_back(tmp);
+        poll_fds.push_back(fd);
         i++;
     }
 	print_poll_fds(poll_fds);
