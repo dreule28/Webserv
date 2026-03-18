@@ -107,7 +107,6 @@ void ConfigParser::parseLocation(std::stringstream& ss, ServerConfig& server, co
 
 std::string ConfigParser::stripSemicolon(const std::string& s) {
 	std::size_t end = s.find_last_not_of(';');
-
 	if (end == std::string::npos)
 		return "";
 	return s.substr(0, end + 1);
