@@ -1,4 +1,5 @@
-#include "sockets.hpp"
+#include "socket/sockets.hpp"
+#include "socket/Connection_class.hpp"
 
 void print_poll_fds(std::vector<Connection> &poll_fds)
 {

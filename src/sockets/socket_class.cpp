@@ -1,4 +1,4 @@
-#include "sockets.hpp"
+#include "socket/Connection_class.hpp"
 
 Connection::Connection()
     : _fd_flag(SERVER_FD), _index(0)
