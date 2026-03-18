@@ -1,7 +1,7 @@
 #include "socket/sockets.hpp"
 #include  "socket/Connection_class.hpp"
 
-void event_loop(std::vector<Connection> con){
+void event_loop(std::vector<Connection> &con){
 	
 	while (true){
 
@@ -27,11 +27,15 @@ void event_loop(std::vector<Connection> con){
                         con.push_back(client_socket);
                     } else if(con[i]._fd_flag == CLIENT_FD){
                     std::cout << BLUE << "CLIENT_FD route" << RESET << std::endl;
-                    handleRequest(con[i]);
+                    handle_pollin_request(con[i]);
                 }
-        
+            }
+            if(poll_array[i].revents & POLLOUT)
+            {
+                std::cout << BLUE << "POLLOUT route" << RESET << std::endl;
+                handle_pollout_request(con[i]);
             }
         }
-        }
+    }
 
 }

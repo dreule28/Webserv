@@ -19,10 +19,11 @@ class Connection;
 
 // event_handling.cpp
 Connection create_client_socket(Connection con);
-void handleRequest(Connection con);
+void handle_pollin_request(Connection &con);
+void handle_pollout_request(Connection &con);
 
 // event_loop.cpp
-void event_loop(std::vector<Connection> con);
+void event_loop(std::vector<Connection> &con);
 
 // socket_creation.cpp
 void setup_sockets(void);
