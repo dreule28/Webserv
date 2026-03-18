@@ -1,6 +1,6 @@
 #include "sockets.hpp"
 
-Socket::Socket()
+Connection::Connection()
     : _fd_flag(SERVER_FD), _index(0)
 {
     _poll_fd.fd = -1;
@@ -9,9 +9,9 @@ Socket::Socket()
 };
 
 
-Socket::~Socket()
+Connection::~Connection()
 {};
 
-Socket::Socket(struct pollfd pollfd, FD_CHECK fd, int index)
+Connection::Connection(struct pollfd pollfd, FD_CHECK fd, int index)
     : _fd_flag(fd), _index(index), _poll_fd(pollfd)
 {};

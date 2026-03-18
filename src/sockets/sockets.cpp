@@ -1,6 +1,6 @@
 #include "sockets.hpp"
 
-void print_poll_fds(std::vector<Socket> &poll_fds)
+void print_poll_fds(std::vector<Connection> &poll_fds)
 {
     std::cout << YELLOW << "Poll list size: " << poll_fds.size() << RESET << std::endl;
     for (size_t i = 0; i < poll_fds.size(); i++){
@@ -8,7 +8,7 @@ void print_poll_fds(std::vector<Socket> &poll_fds)
     }
 }
 
-Socket create_client_socket(Socket fds)
+Connection create_client_socket(Connection fds)
 {
     struct sockaddr_in client_addr;
     socklen_t client_addr_len = sizeof(client_addr);
@@ -28,7 +28,7 @@ Socket create_client_socket(Socket fds)
         exit(-1);
     }
 // Create new Socket for the client
-    Socket client_socket;
+    Connection client_socket;
     client_socket._poll_fd.fd = client_fd;
     client_socket._poll_fd.events = POLLIN;
     client_socket._poll_fd.revents = 0;
@@ -37,7 +37,7 @@ Socket create_client_socket(Socket fds)
     return(client_socket);
 }
 
-void handleRequest(Socket fd)
+void handleRequest(Connection fd)
 {
     char buffer[200];
     ssize_t bytes = recv(fd._poll_fd.fd, buffer, sizeof(buffer), 0);
@@ -54,7 +54,7 @@ void handleRequest(Socket fd)
     std::cout << BOLD << BLUE << fd._read_buffer << RESET << std::endl;
 }
 
-void event_loop(std::vector<Socket> fds){
+void event_loop(std::vector<Connection> fds){
 	
 	while (true){
 
@@ -73,7 +73,7 @@ void event_loop(std::vector<Socket> fds){
                 std::cout << BLUE << "POLLIN" << RESET << std::endl;
                 if(fds[i]._fd_flag == SERVER_FD){
                     std::cout << BLUE << "SERVER_FD route" << RESET << std::endl;
-                        Socket client_socket;
+                        Connection client_socket;
 
                         client_socket = create_client_socket(fds[i]);
                         client_socket._index = fds.size();
@@ -95,14 +95,14 @@ void setup_sockets(void)
 {
     std::string port("8080");
     
-    std::vector<Socket> poll_fds;
+    std::vector<Connection> poll_fds;
     int i = 0;
     while(i < 1){
         int socket_fd = create_socket_fds(port);
         if(socket_fd == -1){
 			return ;
         }
-		Socket fd;
+		Connection fd;
 		fd._poll_fd.fd = socket_fd;
         fd._poll_fd.events = POLLIN;
         fd._poll_fd.revents = 0;
@@ -145,7 +145,7 @@ int create_socket_fds(std::string port)
     }
     std::cout << GREEN << "Socket created " << socket_fd << RESET << std::endl;
 
-     int opt = 1;
+    int opt = 1;
     if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
     {
         std::cerr << RED << "setsockopt error: " << strerror(errno) << RESET << std::endl;

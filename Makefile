@@ -20,7 +20,7 @@ vpath %.cpp $(SRC_DIRS)
 ANAKIN_FILES := anakin.cpp
 ANAKIN := $(addprefix anakin_part/, $(ANAKIN_FILES))
 
-SOCKETS_FILES := sockets.cpp Socket.cpp
+SOCKETS_FILES := sockets.cpp socket_class.cpp
 SOCKETS := $(addprefix sockets/, $(SOCKETS_FILES))
 
 PARSER_FILES := parse_config.cpp

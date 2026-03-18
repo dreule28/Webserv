@@ -20,7 +20,7 @@ typedef enum FD_CHECK // got the redirecting types for the files
     CLIENT_FD
 }		    t_FD_CHECK;
 
-class Socket{
+class Connection{
     public:
         FD_CHECK _fd_flag;
 		size_t	_index;
@@ -28,9 +28,9 @@ class Socket{
         std::string _read_buffer;
         std::string _write_buffer;
         
-        Socket();
-        ~Socket();
-        Socket(struct pollfd pollfd, FD_CHECK is_server, int index);
+        Connection();
+        ~Connection();
+        Connection(struct pollfd pollfd, FD_CHECK is_server, int index);
 
 };
 
