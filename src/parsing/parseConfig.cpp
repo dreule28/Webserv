@@ -1,109 +1,167 @@
 #include "Config/ConfigParser.hpp"
 #include <iostream>
 
-static bool hasTrailingSemicolon(const std::string& token) {
-	return !token.empty() && token.find_last_not_of(';') != token.size() - 1;
+static const char *LINE_MARKER = "__LINE__";
+
+static std::size_t countTrailingSemicolons(const std::string& token) {
+	if (token.empty())
+		return 0;
+	std::size_t lastNonSemicolon = token.find_last_not_of(';');
+	if (lastNonSemicolon == token.size() -1)
+		return 0;
+	if (lastNonSemicolon == std::string::npos)
+		return token.size();
+	return token.size() - lastNonSemicolon - 1;
+}
+
+static void requireSingleTrailingSemicolon(const std::string& token, std::size_t line, const std::string& directive) {
+	std::size_t semicolonCount = countTrailingSemicolons(token);
+	if (semicolonCount != 1)
+		throw std::runtime_error("Line " + std::to_string(line) + ":invalid value for " + directive + ": " + token);
+}
+
+static void skipAndCount(std::stringstream& ss, std::size_t& line) {
+	char c;
+	while (ss.peek() != EOF && std::isspace(ss.peek())) {
+		ss.get(c);
+		if (c == '\n')
+			++line;
+	}
+}
+
+static std::string nextToken(std::stringstream& ss, std::size_t& line) {
+	skipAndCount(ss, line);
+	std::string token;
+	while (ss >> token) {
+		if (token.compare(0, std::strlen(LINE_MARKER), LINE_MARKER) == 0) {
+			line = std::strtoul(token.c_str() + std::strlen(LINE_MARKER), NULL, 10);
+			skipAndCount(ss, line);
+			continue;
+		}
+		return token;
+	}
+	return token;
 }
 
 Config ConfigParser::parse(const std::string& filename) {
 	std::ifstream file(filename);
 	if (!file.is_open())
 		throw std::runtime_error("Cannot open config: " + filename);
-	std::stringstream ss;
-	std::string line;
 
-	while (std::getline(file, line)) {
-		std::size_t commentPos = line.find('#');
+	std::stringstream ss;
+	std::string rawLine;
+	std::size_t currentLine = 1;
+
+	while (std::getline(file, rawLine)) {
+		std::size_t commentPos = rawLine.find('#');
 		if (commentPos != std::string::npos)
-			line.erase(commentPos);
-		if (line.find_first_not_of(" \t\r\n") == std::string::npos)
-			continue;
-		ss << line << '\n';
+			rawLine.erase(commentPos);
+		ss << LINE_MARKER << currentLine << ' ' << rawLine << '\n';
+		++currentLine;
 	}
 
 	Config config;
 	std::string token;
-	while (ss >> token) {
+	std::size_t line = 1;
+
+	while (!(token = nextToken(ss, line)).empty()) {
 		if (token == "server") {
-			ss >> token;
-			parseServer(ss, config);
+			token = nextToken(ss, line);
+			if (token != "{")
+				throw std::runtime_error("Line " + std::to_string(line) + ": expected '{' after server, got: " + token);
+			parseServer(ss, config, line);
 		}
 	}
 	return config;
 }
 
-void ConfigParser::parseServer(std::stringstream& ss, Config& config) {
+
+void ConfigParser::parseServer(std::stringstream& ss, Config& config, std::size_t& line) {
 	ServerConfig server;
 	std::string token;
-	while (ss >> token && token != "}") {
+
+	while (!(token = nextToken(ss, line)).empty() && token != "}") {
 		if (token == "listen") {
-		ss >> token;
-		server.port = std::stoi(stripSemicolon(token));
-	}
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "listen");
+			server.port = std::stoi(stripSemicolon(token));
+		}
 		else if (token == "host") {
-			ss >> token;
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "host");
 			server.host = stripSemicolon(token);
 		}
 		else if (token == "root") {
-			ss >> token;
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "root");
 			server.root = stripSemicolon(token);
 		}
 		else if (token == "index") {
-			ss >> token;
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "index");
 			server.index = stripSemicolon(token);
 		}
-			else if (token == "location") {
-				std::string path;
-				ss >> path;
-				ss >> token;
-				if (token != "{")
-					throw std::runtime_error("Expected '{' after location path, got: " + token);
-				parseLocation(ss, server, path);
-			}
+		else if (token == "location") {
+			std::string path = nextToken(ss, line);
+			token = nextToken(ss, line);
+			if (token != "{")
+				throw std::runtime_error("Line " + std::to_string(line) + ": expected '{' after location path, got: " + token);
+			parseLocation(ss, server, path, line);
+		}
 	}
 	config.servers.push_back(server);
 }
 
-void ConfigParser::parseLocation(std::stringstream& ss, ServerConfig& server, const std::string& path) {
+
+void ConfigParser::parseLocation(std::stringstream& ss, ServerConfig& server, const std::string& path, std::size_t& line) {
 	LocationConfig loc;
 	loc.path = path;
 	std::string token;
 
-	while (ss >> token && token != "}") {
+	while ((token = nextToken(ss, line)) != "}") {
+		if (token.empty())
+			break;
 		if (token == "root") {
-			ss >> token;
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "root");
 			loc.root = stripSemicolon(token);
 		}
-			else if (token == "methods") {
-				while (ss >> token) {
-					std::string method = stripSemicolon(token);
-					if (!method.empty())
-						loc.methods.push_back(method);
-					if (hasTrailingSemicolon(token))
-						break;
-				}
+		else if (token == "methods") {
+			while (!(token = nextToken(ss, line)).empty()) {
+				std::size_t semicolonCount = countTrailingSemicolons(token);
+				if (semicolonCount > 1)
+					throw std::runtime_error("Line " + std::to_string(line) + ": invalid value for methods: " + token);
+				std::string method = stripSemicolon(token);
+				if (!method.empty())
+					loc.methods.push_back(method);
+				if (semicolonCount == 1)
+					break;
 			}
+		}
 		else if (token == "upload_dir") {
-			ss >> token;
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "upload_dir");
 			loc.uploadDir = stripSemicolon(token);
 		}
 		else if (token == "cgi_extension") {
-			ss >> token;
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "cgi_extension");
 			loc.cgiExtensions = stripSemicolon(token);
 			loc.cgiEnabled = true;
 		}
 		else if (token == "cgi_path") {
-			ss >> token;
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "cgi_path");
 			loc.cgiPath = stripSemicolon(token);
 			loc.cgiEnabled = true;
 		}
 		else {
-			std::cerr << RED << "[WARN] Unkown location directive: " << token << RESET << std::endl;
-			ss.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			throw std::runtime_error("Line " + std::to_string(line) + ": unknown location directive: " + token);
 		}
 	}
 	server.locations.push_back(loc);
 }
+
 
 std::string ConfigParser::stripSemicolon(const std::string& s) {
 	std::size_t end = s.find_last_not_of(';');

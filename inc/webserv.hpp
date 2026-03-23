@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iomanip>
 #include <chrono>
+#include <cstdlib>
 
 #include "../inc/Colors.hpp"
 #include "Config/ConfigParser.hpp"

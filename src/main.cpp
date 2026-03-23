@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
 		webServ(argv[1]);
 	} catch (std::exception& e) {
 		std::cerr << RED << e.what() << RESET << std::endl;
+		return 1;
 	}
     return (0);
 }
