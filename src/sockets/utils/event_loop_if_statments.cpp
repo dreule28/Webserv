@@ -18,27 +18,27 @@ bool isClientFd(Connection con)
     }
 }
 
-bool isPOLLIN(Connection con)
+bool isPOLLIN(struct pollfd poll_array)
 {
-    if(con._poll_fd.revents == POLLIN){
+    if(poll_array.revents & POLLIN){
         return (true);
     } else {
         return (false);
     }
 }
 
-bool isPOLLOUT(Connection con)
+bool isPOLLOUT(struct pollfd poll_array)
 {
-    if(con._poll_fd.revents == POLLOUT){
+    if(poll_array.revents & POLLOUT){
         return (true);
     } else {
         return (false);
     }
 }
 
-bool isPOLLERR(Connection con)
+bool isPOLLERR(struct pollfd poll_array)
 {
-    if(con._poll_fd.revents == POLLERR){
+    if(poll_array.revents & POLLERR){
         return (true);
     } else {
         return (false);

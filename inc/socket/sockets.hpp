@@ -35,6 +35,6 @@ void print_poll_fds(std::vector<Connection> &poll_fds);
 // event_loop_if_statments.cpp
 bool isServerFd(Connection con);
 bool isClientFd(Connection con);
-bool isPOLLIN(Connection con);
-bool isPOLLOUT(Connection con);
-bool isPOLLERR(Connection con);
+bool isPOLLIN(struct pollfd poll_array);
+bool isPOLLOUT(struct pollfd poll_array);
+bool isPOLLERR(struct pollfd poll_array);
