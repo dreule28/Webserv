@@ -29,7 +29,9 @@ void event_loop(std::vector<Connection> &con){
                         client_socket = create_client_socket(con[i]);
                         client_socket._index = con.size();
                         con.push_back(client_socket);
-                    } else if(con[i]._fd_flag == CLIENT_FD){
+                }
+                if(isClientFd(con[i]))
+                {
                     std::cout << BLUE << "CLIENT_FD route" << RESET << std::endl;
                     handle_pollin_request(con[i]);
                 }

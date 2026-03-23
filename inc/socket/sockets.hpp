@@ -34,3 +34,4 @@ void print_poll_fds(std::vector<Connection> &poll_fds);
 
 // event_loop_if_statments.cpp
 bool isServerFd(Connection con);
+bool isClientFd(Connection con);
