@@ -9,7 +9,7 @@ bool isServerFd(Connection con)
     }
 }
 
-bool isServerFd(Connection con)
+bool isClientFd(Connection con)
 {
     if(con._fd_flag == CLIENT_FD){
         return (true);
