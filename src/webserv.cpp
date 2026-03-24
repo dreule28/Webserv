@@ -55,15 +55,15 @@ namespace {
 	}
 }
 
-void webServ(char *filename)
+void webServ(char *filename) 
 {
-	    Config config;
-    ConfigParser parser;
+	Config config;
+    	ConfigParser parser;
 
-    config = parser.parse(filename);
-    printConfig(config);
-    std::vector<Connection> con;
-    con = setup_sockets();
-    event_loop(con);
+    	config = parser.parse(filename);
+    	printConfig(config);
+    	std::vector<Connection> con;
+    	con = setup_sockets();
+   	event_loop(con);
 
 }
