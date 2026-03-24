@@ -41,3 +41,4 @@ bool isClientFd(Connection con);
 bool isPOLLIN(struct pollfd poll_array);
 bool isPOLLOUT(struct pollfd poll_array);
 bool isPOLLERR(struct pollfd poll_array);
+bool isPOLLHUP(struct pollfd poll_array);
