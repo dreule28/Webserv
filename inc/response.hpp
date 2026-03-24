@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <vector>
 #include <map>
+#include "LocationConfig.hpp"
 
 // struct location {
 // 	std::string 				path;
@@ -21,8 +22,9 @@ struct http_request {
 	std::string 						body;			// Request body content
 };
 
-const LocationConfig	*routeMatching(const std::string *uri, const std::vector<LocationConfig> &locations);
-bool	checkMethod(const std::string &method, const LocationConfig location);
-std::string buildRealPath(const LocationConfig &loc);
+const LocationConfig	*routeMatching(const std::string &uri, const std::vector<LocationConfig> &locations);
+bool	checkMethod(const std::string &method, const LocationConfig *location);
+std::string buildRealPath(const LocationConfig *loc);
 int	checkFile(std::string file_path, std::string method);
+std::string response(const std::vector<LocationConfig> &locations);
 
