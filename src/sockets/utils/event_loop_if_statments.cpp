@@ -44,3 +44,12 @@ bool isPOLLERR(struct pollfd poll_array)
         return (false);
     }
 }
+
+bool isPOLLHUP(struct pollfd poll_array)
+{
+    if(poll_array.revents & POLLHUP){
+        return (true);
+    } else {
+        return (false);
+    }
+}
