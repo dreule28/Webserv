@@ -3,8 +3,8 @@
 void webServ(char *filename)
 {
     parse_config(filename);
-    setup_sockets();
+    std::vector<Connection> con;
+    con = setup_sockets();
+    event_loop(con);
 
-    //anakin muss bissle warten auf uns
-    anakin_part();
 }

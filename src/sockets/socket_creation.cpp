@@ -1,7 +1,7 @@
 #include "socket/sockets.hpp"
 #include "socket/Connection_class.hpp"
 
-void setup_sockets(void)
+ std::vector<Connection> setup_sockets(void)
 {
     std::string port("8080");
     
@@ -9,8 +9,10 @@ void setup_sockets(void)
     int i = 0;
     while(i < 1){
         int socket_fd = create_socket_fds(port);
-        if(socket_fd == -1){
-			return ;
+        if(socket_fd == -1)
+        {
+            std::cout << RED << "socket_fd creation failed" << std::endl;
+			break;
         }
         
 		Connection fd;
@@ -23,8 +25,7 @@ void setup_sockets(void)
         i++;
     }
 	print_poll_fds(con);
-	event_loop(con);
-
+    return(con);
 }
 
 int create_socket_fds(std::string port)

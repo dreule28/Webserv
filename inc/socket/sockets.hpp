@@ -26,7 +26,7 @@ void handle_pollout_request(Connection &con);
 void event_loop(std::vector<Connection> &con);
 
 // socket_creation.cpp
-void setup_sockets(void);
+ std::vector<Connection> setup_sockets(void);
 int create_socket_fds(std::string port);
 
 // utils.cpp
