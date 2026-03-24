@@ -32,6 +32,15 @@ PARSER := $(addprefix parsing/, $(PARSER_FILES))
 SRC_FILES := main.cpp webserv.cpp
 SRC := $(addprefix src/, $(SRC_FILES) $(PARSER) $(SOCKETS) $(SOCKETS_UTILS) $(ANAKIN))
 
+# Test files
+TEST_NAME := test_response
+TEST_SRC := src/response/test.cpp \
+			src/response/_response.cpp \
+			src/response/route_matching.cpp \
+			src/response/method_check.cpp \
+			src/response/build_path.cpp \
+			src/response/check_file.cpp
+
 ################################################################################
 ###############                     RULES                         ##############
 ################################################################################
@@ -55,6 +64,14 @@ $(NAME): $(OBJS)
 	@$(CPP) $(LDFLAGS) $(OBJS) -o $(NAME)
 	@echo "$(COLOR_GREEN)Successful Compilation of $(NAME)$(COLOR_RESET)"
 
+test: $(TEST_NAME)
+
+$(TEST_NAME): $(TEST_SRC)
+	@echo "$(COLOR_CYAN)Building test suite...$(COLOR_RESET)"
+	@$(CPP) $(CFLAGS) $(TEST_SRC) -o $(TEST_NAME)
+	@echo "$(COLOR_GREEN)Test suite built successfully!$(COLOR_RESET)"
+	@echo "$(COLOR_CYAN)Run with: ./$(TEST_NAME)$(COLOR_RESET)"
+
 $(OBJ_DIR)/%.o: %.cpp | $(OBJ_DIR)
 	@mkdir -p $(dir $@)
 	@echo "$(COLOR_GREEN)Compiling $<...$(COLOR_RESET)"
@@ -70,6 +87,8 @@ clean:
 fclean: clean
 	@echo "$(COLOR_YELLOW)Removing $(NAME)...$(COLOR_RESET)"
 	@$(RM) $(NAME)
+	@echo "$(COLOR_YELLOW)Removing $(TEST_NAME)...$(COLOR_RESET)"
+	@$(RM) $(TEST_NAME)
 	@echo "$(COLOR_YELLOW)All files removed successfully$(COLOR_RESET)"
 
 re: fclean all
@@ -77,10 +96,11 @@ re: fclean all
 help:
 	@echo "Available targets:"
 	@echo "  all      - Build $(NAME) (default)"
+	@echo "  test     - Build and compile test suite"
 	@echo "  clean    - Remove object files"
 	@echo "  fclean   - Remove all generated files"
 	@echo "  re       - Rebuild $(NAME)"
 
 -include $(OBJS:.o=.d)
 
-.PHONY: all clean fclean re help
+.PHONY: all test clean fclean re help
