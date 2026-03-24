@@ -39,6 +39,11 @@ void event_loop(std::vector<Connection> &con)
 				std::cout << BLUE << "POLLOUT route" << RESET << std::endl;
 				handle_pollout_request(con[i]);
 			}
+			if(isPOLLERR(poll_array[i]) || isPOLLHUP(poll_array[i]))
+			{
+				std::cout << BLUE << "POLLERR/POLLHUP" << RESET << std::endl;
+				// handle_pollerr_pollhup_request(con[i]);
+			}
 		}
 	}
 

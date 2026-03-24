@@ -70,3 +70,8 @@ void handle_pollout_request(Connection &con)
     }
     con._write_index += bytes;
 }
+
+// void handle_pollerr_pollhup_request(Connection &con)
+// {
+
+// }
