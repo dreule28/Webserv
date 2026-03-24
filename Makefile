@@ -23,7 +23,7 @@ ANAKIN := $(addprefix anakin_part/, $(ANAKIN_FILES))
 SOCKETS_FILES := sockets.cpp
 SOCKETS := $(addprefix sockets/, $(SOCKETS_FILES))
 
-PARSER_FILES := parseConfig.cpp
+PARSER_FILES := parseConfig.cpp utils.cpp
 PARSER := $(addprefix parsing/, $(PARSER_FILES))
 
 SRC_FILES := main.cpp webserv.cpp
