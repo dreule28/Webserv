@@ -1,6 +1,7 @@
-#pragma once 
+#pragma once
 
-#include "webserv.hpp"
+#include <string>
+#include <vector>
 
 class LocationConfig {
 	public:
