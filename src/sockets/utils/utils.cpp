@@ -57,7 +57,7 @@ std::string status_message(int status)
 		case(404):
 			return ("Not Found");
 		case(405):
-			return ("Method Not Found");
+			return ("Method Not Allowed");
 		case(500):
 			return ("Internal Server Error");
 		default:

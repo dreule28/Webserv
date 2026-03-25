@@ -57,6 +57,7 @@ int create_socket_fds(std::string port)
     if (setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
     {
         freeaddrinfo(results);
+	  close(socket_fd);
         throw std::runtime_error("setsockopt error");
     }
 
