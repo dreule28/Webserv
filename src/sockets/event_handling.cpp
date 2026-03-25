@@ -51,7 +51,7 @@ void handle_pollin_request(Connection &con)
 	con._read_buffer.append(buffer, bytes);
 	if(con._read_buffer.find("\r\n\r\n") != std::string::npos)
 	{
-		
+		// hier kommt daniel parsing
 		con._poll_fd.events = POLLOUT;
 		return ;
 	}
