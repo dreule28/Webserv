@@ -16,15 +16,44 @@
 static int g_tests_passed = 0;
 static int g_tests_failed = 0;
 
+// Helper: Print HTTP request
+void print_request(const http_request &req) {
+	std::cout << "  " << TEST_BLUE << "REQUEST:" << TEST_RESET << std::endl;
+	std::cout << "    Method: " << req.method << std::endl;
+	std::cout << "    Path: " << req.path << std::endl;
+	std::cout << "    HTTP Version: " << req.http_version << std::endl;
+	if (!req.body.empty()) {
+		std::cout << "    Body: \"" << req.body << "\"" << std::endl;
+	}
+}
+
+// Helper: Print HTTP response
+void print_response(const std::string &response) {
+	std::cout << "  " << TEST_BLUE << "RESPONSE:" << TEST_RESET << std::endl;
+	if (response.empty()) {
+		std::cout << "    (empty)" << std::endl;
+	} else {
+		// Print first 200 chars or until first newline
+		std::string::size_type newline_pos = response.find('\n');
+		std::string preview = response.substr(0, std::min(newline_pos, (std::string::size_type)200));
+		std::cout << "    \"" << preview << "\"";
+		if (response.length() > preview.length()) {
+			std::cout << "... (" << response.length() << " total chars)";
+		}
+		std::cout << std::endl;
+	}
+}
+
 // Helper: Print test result
 void print_test_result(const std::string &test_name, bool passed) {
 	if (passed) {
-		std::cout << TEST_GREEN << "[PASS] " << TEST_RESET << test_name << std::endl;
+		std::cout << "  " << TEST_GREEN << "[PASS] " << TEST_RESET << test_name << std::endl;
 		g_tests_passed++;
 	} else {
-		std::cout << TEST_RED << "[FAIL] " << TEST_RESET << test_name << std::endl;
+		std::cout << "  " << TEST_RED << "[FAIL] " << TEST_RESET << test_name << std::endl;
 		g_tests_failed++;
 	}
+	std::cout << std::endl;
 }
 
 // Helper: Create a test file with content
@@ -69,6 +98,8 @@ http_request create_test_request(const std::string &method, const std::string &p
 
 // Test 1: GET method - successful file read
 void test_get_success() {
+	std::cout << TEST_BLUE << "Test 1: GET - successful file read" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_get.txt";
 	const std::string test_content = "Hello, World!";
 
@@ -81,8 +112,14 @@ void test_get_success() {
 
 	http_request req = create_test_request("GET", "/webserv_test_get.txt");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify
 	bool passed = !result.empty() && result.find(test_content) != std::string::npos;
@@ -94,6 +131,8 @@ void test_get_success() {
 
 // Test 2: GET method - file not found
 void test_get_file_not_found() {
+	std::cout << TEST_BLUE << "Test 2: GET - file not found" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_nonexistent.txt";
 
 	// Ensure file doesn't exist
@@ -105,8 +144,14 @@ void test_get_file_not_found() {
 
 	http_request req = create_test_request("GET", "/webserv_test_nonexistent.txt");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should return empty string on error
 	bool passed = result.empty();
@@ -115,6 +160,8 @@ void test_get_file_not_found() {
 
 // Test 3: POST method - create new file
 void test_post_create_new_file() {
+	std::cout << TEST_BLUE << "Test 3: POST - create new file" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_post_new.txt";
 	const std::string test_content = "New file content";
 
@@ -127,8 +174,14 @@ void test_post_create_new_file() {
 
 	http_request req = create_test_request("POST", "/webserv_test_post_new.txt", test_content);
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should return 201 Created for new file
 	bool passed = result.find("201") != std::string::npos &&
@@ -141,6 +194,8 @@ void test_post_create_new_file() {
 
 // Test 4: POST method - append to existing file
 void test_post_append_existing_file() {
+	std::cout << TEST_BLUE << "Test 4: POST - append to existing file" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_post_existing.txt";
 	const std::string initial_content = "Initial content\n";
 	const std::string new_content = "Appended content";
@@ -154,8 +209,14 @@ void test_post_append_existing_file() {
 
 	http_request req = create_test_request("POST", "/webserv_test_post_existing.txt", new_content);
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should return 200 OK for existing file
 	bool passed = result.find("200") != std::string::npos &&
@@ -168,6 +229,8 @@ void test_post_append_existing_file() {
 
 // Test 5: DELETE method - successful deletion
 void test_delete_success() {
+	std::cout << TEST_BLUE << "Test 5: DELETE - successful deletion" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_delete.txt";
 
 	// Setup - create file to delete
@@ -179,8 +242,14 @@ void test_delete_success() {
 
 	http_request req = create_test_request("DELETE", "/webserv_test_delete.txt");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should return 204 No Content
 	bool status_ok = result.find("204") != std::string::npos &&
@@ -196,6 +265,8 @@ void test_delete_success() {
 
 // Test 6: DELETE method - file not found
 void test_delete_file_not_found() {
+	std::cout << TEST_BLUE << "Test 6: DELETE - file not found" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_delete_nonexistent.txt";
 
 	// Setup - ensure file doesn't exist
@@ -207,8 +278,14 @@ void test_delete_file_not_found() {
 
 	http_request req = create_test_request("DELETE", "/webserv_test_delete_nonexistent.txt");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should return empty (file check fails before DELETE is called)
 	bool passed = result.empty();
@@ -217,14 +294,22 @@ void test_delete_file_not_found() {
 
 // Test 7: Method not allowed
 void test_method_not_allowed() {
+	std::cout << TEST_BLUE << "Test 7: Method not allowed" << TEST_RESET << std::endl;
+
 	std::vector<std::string> allowed_methods = {"GET"};  // Only GET allowed
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
 	http_request req = create_test_request("POST", "/test.txt", "content");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should return empty string when method not allowed
 	bool passed = result.empty();
@@ -233,6 +318,8 @@ void test_method_not_allowed() {
 
 // Test 8: Multiple locations - correct route matching
 void test_multiple_locations() {
+	std::cout << TEST_BLUE << "Test 8: Multiple locations - correct route matching" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/api/webserv_test_api.txt";
 	const std::string test_content = "API response";
 
@@ -249,8 +336,14 @@ void test_multiple_locations() {
 
 	http_request req = create_test_request("GET", "/api/webserv_test_api.txt");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should successfully read file from /api/ location
 	bool passed = !result.empty() && result.find(test_content) != std::string::npos;
@@ -263,6 +356,8 @@ void test_multiple_locations() {
 
 // Test 9: GET with empty file
 void test_get_empty_file() {
+	std::cout << TEST_BLUE << "Test 9: GET - empty file" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_empty.txt";
 
 	// Setup - create empty file
@@ -274,8 +369,14 @@ void test_get_empty_file() {
 
 	http_request req = create_test_request("GET", "/webserv_test_empty.txt");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - GET returns file content, so empty file returns empty string
 	// This is expected behavior - the HTTP headers are added elsewhere
@@ -288,6 +389,8 @@ void test_get_empty_file() {
 
 // Test 10: POST with empty body
 void test_post_empty_body() {
+	std::cout << TEST_BLUE << "Test 10: POST - empty body" << TEST_RESET << std::endl;
+
 	const std::string test_file = "/tmp/webserv_test_post_empty.txt";
 
 	// Setup - ensure file doesn't exist
@@ -299,8 +402,14 @@ void test_post_empty_body() {
 
 	http_request req = create_test_request("POST", "/webserv_test_post_empty.txt", "");
 
+	// Print request
+	print_request(req);
+
 	// Execute
 	std::string result = response(req, locations);
+
+	// Print response
+	print_response(result);
 
 	// Verify - should return 201 Created
 	bool passed = result.find("201") != std::string::npos;
