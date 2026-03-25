@@ -26,7 +26,7 @@ SOCKETS := $(addprefix sockets/, $(SOCKETS_FILES))
 SOCKETS_UTILS_FILES := utils.cpp event_loop_if_statments.cpp
 SOCKETS_UTILS := $(addprefix sockets/utils/, $(SOCKETS_UTILS_FILES))
 
-PARSER_FILES := parseConfig.cpp utils.cpp
+PARSER_FILES := parseConfig.cpp utils.cpp HttpRequest.cpp
 PARSER := $(addprefix parsing/, $(PARSER_FILES))
 
 SRC_FILES := main.cpp webserv.cpp
