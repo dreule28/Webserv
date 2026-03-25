@@ -40,6 +40,7 @@ TEST_SRC := src/response/test.cpp \
 			src/response/method_check.cpp \
 			src/response/build_path.cpp \
 			src/response/check_file.cpp \
+			src/response/error.cpp \
 			src/methods/GET.cpp \
 			src/methods/POST.cpp \
 			src/methods/DELETE.cpp

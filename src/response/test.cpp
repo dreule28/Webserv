@@ -153,9 +153,10 @@ void test_get_file_not_found() {
 	// Print response
 	print_response(result);
 
-	// Verify - should return empty string on error
-	bool passed = result.empty();
-	print_test_result("GET - file not found returns empty", passed);
+	// Verify - should return 404 error response
+	bool passed = result.find("404") != std::string::npos &&
+				  result.find("Not Found") != std::string::npos;
+	print_test_result("GET - file not found returns 404", passed);
 }
 
 // Test 3: POST method - create new file
@@ -287,9 +288,10 @@ void test_delete_file_not_found() {
 	// Print response
 	print_response(result);
 
-	// Verify - should return empty (file check fails before DELETE is called)
-	bool passed = result.empty();
-	print_test_result("DELETE - file not found returns empty", passed);
+	// Verify - should return 404 error response
+	bool passed = result.find("404") != std::string::npos &&
+				  result.find("Not Found") != std::string::npos;
+	print_test_result("DELETE - file not found returns 404", passed);
 }
 
 // Test 7: Method not allowed
@@ -311,9 +313,10 @@ void test_method_not_allowed() {
 	// Print response
 	print_response(result);
 
-	// Verify - should return empty string when method not allowed
-	bool passed = result.empty();
-	print_test_result("Method not allowed returns empty", passed);
+	// Verify - should return 405 error response
+	bool passed = result.find("405") != std::string::npos &&
+				  result.find("Method Not Allowed") != std::string::npos;
+	print_test_result("Method not allowed returns 405", passed);
 }
 
 // Test 8: Multiple locations - correct route matching
@@ -378,10 +381,11 @@ void test_get_empty_file() {
 	// Print response
 	print_response(result);
 
-	// Verify - GET returns file content, so empty file returns empty string
-	// This is expected behavior - the HTTP headers are added elsewhere
-	bool passed = result.empty();
-	print_test_result("GET - empty file returns empty content", passed);
+	// Verify - GET should return 200 OK even for empty files
+	bool passed = result.find("200") != std::string::npos &&
+				  result.find("OK") != std::string::npos &&
+				  result.find("Content-Length: 0") != std::string::npos;
+	print_test_result("GET - empty file returns 200 with zero length", passed);
 
 	// Cleanup
 	cleanup_test_file(test_file);

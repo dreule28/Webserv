@@ -96,3 +96,4 @@ std::string buildRealPath(const LocationConfig *loc, const std::string &request_
 int	checkFile(std::string file_path, std::string method);
 std::string response(const http_request &request, const std::vector<LocationConfig> &locations);
 
+std::string	errorResponse(const int error_code);
