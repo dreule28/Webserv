@@ -3,34 +3,43 @@
 
 Connection create_client_socket(Connection con)
 {
-    struct sockaddr_in client_addr;
-    socklen_t client_addr_len = sizeof(client_addr);
-    
-    int client_fd = accept(con._poll_fd.fd, (struct sockaddr *)&client_addr, &client_addr_len);
-    if(client_fd == -1){
-	  std::cerr << RED << "accept error" << RESET << std::endl;
-    } else {
-	  std::cout << GREEN << "Client connected: " << client_fd << RESET << std::endl;
-    }
-    
-    if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
-    {
-	  std::cerr << RED << "fcntl error: " << strerror(errno) << RESET << std::endl;
-	  exit(-1);
-    }
+	Connection client_socket;
+	client_socket._poll_fd.fd = -1;
+	client_socket._poll_fd.events = 0;
+	client_socket._poll_fd.revents = 0;
+	client_socket._fd_flag = CLIENT_FD;
+	client_socket._write_index = 0;
 
-    Connection client_socket;
-    client_socket._poll_fd.fd = client_fd;
-    client_socket._poll_fd.events = POLLIN;
-    client_socket._poll_fd.revents = 0;
-    client_socket._fd_flag = CLIENT_FD;
+	struct sockaddr_in client_addr;
+	socklen_t client_addr_len = sizeof(client_addr);
+
+	int client_fd = accept(con._poll_fd.fd, (struct sockaddr *)&client_addr, &client_addr_len);
+	if(client_fd == -1)
+	{
+		std::cerr << RED << "accept error" << RESET << std::endl;
+		return (client_socket);
+    	}
+	else
+	{
+		std::cout << GREEN << "Client connected: " << client_fd << RESET << std::endl;
+    	}
     
-    return(client_socket);
+    	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
+    	{
+		std::cerr << RED << "fcntl error: " << strerror(errno) << RESET << std::endl;
+		close(client_fd);
+      	return (client_socket);
+    	}
+
+	client_socket._poll_fd.fd = client_fd;
+	client_socket._poll_fd.events = POLLIN;
+	
+    	return(client_socket);
 }
 
 void handle_pollin_request(Connection &con)
 {
-	char buffer[RECV_BUFFER_SIZE];
+	char buffer[RECV_BUFFER_SIZE + 1];
 	ssize_t bytes = recv(con._poll_fd.fd, buffer, sizeof(buffer), 0);
 	if(recv_error(bytes))
 	{
