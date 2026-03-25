@@ -33,7 +33,10 @@ void handle_pollin_request(Connection &con)
 	char buffer[RECV_BUFFER_SIZE];
 	ssize_t bytes = recv(con._poll_fd.fd, buffer, sizeof(buffer), 0);
 	if(recv_error(bytes))
+	{
+		close_connection(con);
 		return ;
+	}
 	buffer[bytes] = '\0';
 
 	con._read_buffer.append(buffer, bytes);
@@ -50,9 +53,7 @@ void handle_pollout_request(Connection &con)
     	if(con._write_buffer.empty())
     	{
 		std::cout << GREEN << "write buffer empty write done" << RESET << std::endl;
-		close(con._poll_fd.fd);
-		con._poll_fd.fd = -1;
-		con._poll_fd.events = 0;
+		close_connection(con);
 		return ;
     	}
 
@@ -63,12 +64,13 @@ void handle_pollout_request(Connection &con)
     	if(bytes == 0)
     	{
 		std::cout << YELLOW << "Client disconnected" << RESET << std::endl;
-		con._write_buffer.clear();
+		close_connection(con);
 		return ;
     	}
     	else if (bytes == -1)
 	{
-		std::cerr << RED << "send error: " << strerror(errno) << RESET << std::endl;
+		std::cerr << RED << "send error" << RESET << std::endl;
+		close_connection(con);
 		return ;
     	}
     	con._write_index += bytes;

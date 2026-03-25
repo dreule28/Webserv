@@ -27,8 +27,7 @@ bool recv_error(ssize_t bytes)
 	}
 	else if (bytes == -1)
 	{
-		if(errno != EWOULDBLOCK)
-			std::cerr << RED << "recv error: " << strerror(errno) << RESET << std::endl;
+		std::cerr << RED << "recv error" << RESET << std::endl;
 		return (true);
 	}
     return (false);
