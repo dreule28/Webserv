@@ -35,7 +35,7 @@ int create_socket_fds(std::string port);
 void print_poll_fds(std::vector<Connection> &poll_fds);
 Connection connect_client(Connection &con, size_t index);
 bool recv_error(ssize_t bytes);
-void close_connection(Connection &con)
+void close_connection(Connection &con);
 
 // event_loop_if_statments.cpp
 bool isServerFd(Connection con);
