@@ -78,3 +78,5 @@ std::string response(const http_request &request, const std::vector<LocationConf
 
 std::string	errorResponse(const int error_code);
 std::string getContentType(const std::string &file_path);
+
+std::string mock_response(void);

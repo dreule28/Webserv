@@ -26,8 +26,14 @@ SOCKETS_UTILS := $(addprefix sockets/utils/, $(SOCKETS_UTILS_FILES))
 PARSER_FILES := parseConfig.cpp utils.cpp HttpRequest.cpp
 PARSER := $(addprefix parsing/, $(PARSER_FILES))
 
+RESPONSE_FILES := HttpResponse.cpp route_matching.cpp method_check.cpp build_path.cpp check_file.cpp error.cpp
+RESPONSE := $(addprefix response/, $(RESPONSE_FILES))
+
+METHODS_FILES := GET.cpp POST.cpp DELETE.cpp
+METHODS := $(addprefix methods/, $(METHODS_FILES))
+
 SRC_FILES := main.cpp webserv.cpp
-SRC := $(addprefix src/, $(SRC_FILES) $(PARSER) $(SOCKETS) $(SOCKETS_UTILS))
+SRC := $(addprefix src/, $(SRC_FILES) $(PARSER) $(SOCKETS) $(SOCKETS_UTILS) $(RESPONSE) $(METHODS))
 
 # Test files
 TEST_NAME := test_response

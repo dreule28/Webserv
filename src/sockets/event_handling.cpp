@@ -1,5 +1,6 @@
 #include "socket/sockets.hpp"
 #include "socket/Connection_class.hpp"
+#include "HttpResponse.hpp"
 
 Connection create_client_socket(Connection con)
 {
@@ -52,6 +53,7 @@ void handle_pollin_request(Connection &con)
 	if(con._read_buffer.find("\r\n\r\n") != std::string::npos)
 	{
 		// hier kommt daniel parsing
+		con._write_buffer = mock_response();
 		con._poll_fd.events = POLLOUT;
 		return ;
 	}
