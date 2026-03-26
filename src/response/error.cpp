@@ -4,21 +4,28 @@
 #include "status.hpp"
 
 std::string	errorResponse(const int error_code) {
-	std::ostringstream ss;
-	std::string body = HTTP_STATUS_MESSAGES.at(error_code);
+	HttpResponse response(error_code);
 
-	ss << "HTTP/1.1 " << error_code << " " <<
-		body << "\r\n" <<
-		"Content-Type: text/plain\r\n" <<
-		"Content-Length: " << body.size() << "\r\n" <<
-		"Connection: close\r\n" <<
-		"\r\n";
+	std::string error_message = HTTP_STATUS_MESSAGES.at(error_code);
 
-	if (!body.empty())
-		ss << body;
+	response.setHeader("Content-Type", "text/html");
 
-	std::cerr << RED << "Error: " << body << RESET << std::endl;
+	// Create simple HTML error page
+	std::ostringstream body_ss;
+	body_ss << "<!DOCTYPE html>\n"
+			<< "<html>\n"
+			<< "<head><title>" << error_code << " " << error_message << "</title></head>\n"
+			<< "<body>\n"
+			<< "<h1>" << error_code << " " << error_message << "</h1>\n"
+			<< "<hr>\n"
+			<< "<p>Webserv/1.0</p>\n"
+			<< "</body>\n"
+			<< "</html>";
 
-	return ss.str();
+	response.body = body_ss.str();
+
+	std::cerr << RED << "Error: " << error_message << RESET << std::endl;
+
+	return response.build();
 }
 

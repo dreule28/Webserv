@@ -32,7 +32,7 @@ SRC := $(addprefix src/, $(SRC_FILES) $(PARSER) $(SOCKETS) $(SOCKETS_UTILS))
 # Test files
 TEST_NAME := test_response
 TEST_SRC := src/response/test.cpp \
-			src/response/_response.cpp \
+			src/response/HttpResponse.cpp \
 			src/response/route_matching.cpp \
 			src/response/method_check.cpp \
 			src/response/build_path.cpp \

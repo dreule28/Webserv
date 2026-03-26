@@ -5,16 +5,30 @@
 #include "methods.hpp"
 #include <sstream>
 
-HttpResponse::HttpResponse(int s) : status(s) {}
+std::string getContentType(const std::string &file_path) {
+	size_t dot_pos = file_path.find_last_of('.');
+	if (dot_pos == std::string::npos)
+		return "application/octet-stream";
 
-HttpResponse::HttpResponse(const HttpResponse &other) {
-	if (this != &other)
-		*this = other;
+	std::string ext = file_path.substr(dot_pos);
+
+	std::unordered_map<std::string, std::string>::const_iterator it = MIME_TYPES.find(ext);
+	if (it != MIME_TYPES.end())
+		return it->second;
+
+	return "application/octet-stream";
 }
 
+HttpResponse::HttpResponse(int s) : status(s) {}
+
+HttpResponse::HttpResponse(const HttpResponse &other) : status(other.status), headers(other.headers), body(other.body) {}
+
 HttpResponse &HttpResponse::operator=(const HttpResponse &other) {
-	if (this != &other) 
-		*this = other;
+	if (this != &other) {
+		status = other.status;
+		headers = other.headers;
+		body = other.body;
+	}
 	return *this;
 }
 
@@ -28,8 +42,8 @@ void HttpResponse::setStandardHeader(void) {
 		headers["Server"] = "Webserv/1.0";
 	if (headers.find("Connection") == headers.end())
 		headers["Connection"] = "close";
-	if (!body.empty() && headers.find("Content-Lenght") == headers.end())
-		headers["Content-Lenght"] = std::to_string(body.size());
+	if (!body.empty() && headers.find("Content-Length") == headers.end())
+		headers["Content-Length"] = std::to_string(body.size());
 }
 
 std::string HttpResponse::build(void) {
@@ -69,28 +83,26 @@ std::string response(const http_request &request, const std::vector<LocationConf
 		}
 	}
 
-	std::string res;
-
 	if (request.method == "GET") {
-		std::string content = GET(file_path);
-
-		ss << "HTTP/1.1 200 OK\r\n";
-		ss << "Content-Type: text/html\r\n";
-		ss << "Content-Length: " << content.size() << "\r\n";
-		ss << "\r\n";
-		ss << content;
-		res = ss.str();
+		HttpResponse response(200);
+		response.setHeader("Content-Type", getContentType(file_path));
+		response.body = GET(file_path);
+		return response.build();
 	}
 	else if (request.method == "POST") {
 		status = POST(file_path, request.body);
-		ss << "HTTP/1.1 " << status << " " << HTTP_STATUS_MESSAGES.at(status) << "\r\n";
-		res = ss.str();
+		HttpResponse response(status);
+		response.setHeader("Content-Type", "application/json");
+		response.body = "{\"status\": \"success\"}";
+		return response.build();
 	}
 	else if (request.method == "DELETE") {
 		status = DELETE(file_path);
-		ss << "HTTP/1.1 " << status << " " << HTTP_STATUS_MESSAGES.at(status) << "\r\n";
-		res = ss.str();
+		HttpResponse response(status);
+		response.setHeader("Content-Type", "application/json");
+		response.body = "{\"status\": \"deleted\"}";
+		return response.build();
 	}
 
-	return res;
+	return errorResponse(500);
 }
