@@ -21,6 +21,8 @@ std::vector<Connection> setup_sockets(Config config)
       	fd._poll_fd.revents = 0;
       	fd._index = i;
 
+		con[i]._serverConfig = config.servers[i];
+		
       	con.push_back(fd);
     	}
 	print_poll_fds(con);
