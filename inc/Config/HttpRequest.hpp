@@ -1,7 +1,12 @@
 #pragma once
 
-#include "webserv.hpp"
-#include "Config/Config.hpp"
+#include <string>
+#include <map>
+#include <sstream>
+#include <iostream>
+#include <algorithm>
+#include <cstdlib>
+#include "../Colors.hpp"
 
 class HttpRequest {
 	public:
