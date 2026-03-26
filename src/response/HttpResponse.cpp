@@ -106,3 +106,30 @@ std::string response(const http_request &request, const std::vector<LocationConf
 
 	return errorResponse(500);
 }
+
+std::string mock_response(void) {
+	// Create mock location configuration
+	LocationConfig loc;
+	loc.path = "/";
+	loc.root = "/tmp/webserv_mock/";
+	loc.methods.push_back("GET");
+	loc.methods.push_back("POST");
+	loc.methods.push_back("DELETE");
+	loc.cgiEnabled = false;
+
+	std::vector<LocationConfig> locations;
+	locations.push_back(loc);
+
+	// Create mock HTTP request
+	http_request request;
+	request.method = "GET";
+	request.path = "/datadjsajdh";
+	request.http_version = "HTTP/1.1";
+	request.headers["Host"] = "localhost:8080";
+	request.headers["User-Agent"] = "MockClient/1.0";
+	request.headers["Accept"] = "text/html";
+	request.body = "";
+
+	// Call the real response function with mock data
+	return response(request, locations);
+}
