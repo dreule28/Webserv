@@ -33,14 +33,17 @@ void print_response(const std::string &response) {
 	if (response.empty()) {
 		std::cout << "    (empty)" << std::endl;
 	} else {
-		// Print first 200 chars or until first newline
-		std::string::size_type newline_pos = response.find('\n');
-		std::string preview = response.substr(0, std::min(newline_pos, (std::string::size_type)200));
-		std::cout << "    \"" << preview << "\"";
-		if (response.length() > preview.length()) {
-			std::cout << "... (" << response.length() << " total chars)";
+		// Print full response with proper indentation
+		std::istringstream iss(response);
+		std::string line;
+		while (std::getline(iss, line)) {
+			// Remove \r if present (for \r\n line endings)
+			if (!line.empty() && line.back() == '\r') {
+				line.pop_back();
+			}
+			std::cout << "    " << line << std::endl;
 		}
-		std::cout << std::endl;
+		std::cout << "    (" << response.length() << " total chars)" << std::endl;
 	}
 }
 
