@@ -17,6 +17,8 @@ void event_loop(std::vector<Connection> &con)
 			break;
 		}
 
+		std::vector<Connection> new_clients;
+
 		//check revents for each connection
 		for(size_t i = 0; i < con.size(); i++)
 		{
@@ -26,7 +28,9 @@ void event_loop(std::vector<Connection> &con)
 				if(isServerFd(con[i]))
 				{
 					std::cout << BLUE << "SERVER_FD route" << RESET << std::endl;
-					con.push_back(connect_client(con[i], con.size()));
+					Connection client = connect_client(con[i], con.size() + new_clients.size());
+					if(client._poll_fd.fd != -1)
+						new_clients.push_back(client);
 				}
 				if(isClientFd(con[i]))
 				{
@@ -45,6 +49,9 @@ void event_loop(std::vector<Connection> &con)
 				handle_pollerr_pollhup_request(con[i]);
 			}
 		}
+        	for (auto& client : new_clients)
+            	con.push_back(client);
+
 		remove_closed_connection(con);
 	}
 }
