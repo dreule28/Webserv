@@ -45,6 +45,6 @@ void event_loop(std::vector<Connection> &con)
 				handle_pollerr_pollhup_request(con[i]);
 			}
 		}
+		remove_closed_connection(con);
 	}
-
 }

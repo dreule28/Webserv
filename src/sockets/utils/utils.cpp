@@ -44,3 +44,16 @@ void close_connection(Connection &con)
 	con._write_buffer.clear();
 	con._write_index = 0;
 }
+
+bool is_closed_connection(Connection &c)
+{
+	if (c._poll_fd.fd == -1){
+		return (true);
+	}
+	return (false);
+}
+
+void remove_closed_connection(std::vector<Connection> &con)
+{
+	con.erase(std::remove_if(con.begin(), con.end(),is_closed_connection), con.end());
+}
