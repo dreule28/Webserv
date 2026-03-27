@@ -108,7 +108,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 			response.setHeader("Content-Type", "text/html");
 		else
 			response.setHeader("Content-Type", getContentType(file_path));
-		response.body = get_method(file_path, is_dir);
+		response.body = get_method(file_path, is_dir, request);
 		return response.build();
 	}
 	else if (request.method == POST) {

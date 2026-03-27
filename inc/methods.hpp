@@ -5,6 +5,8 @@
 #include <fstream>
 #include <filesystem>
 
-std::string		get_method(const std::string &file_path, bool is_dir);
+class HttpRequest;
+
+std::string		get_method(const std::string &file_path, bool is_dir, const HttpRequest &request);
 int				post_method(const std::string &file_path, const std::string &content);
 int				delete_method(const std::string &file_path);
