@@ -61,6 +61,7 @@ class HttpResponse {
 		void setHeader(const std::string &key, const std::string &value);
 		void setStandardHeader(void);
 		std::string build(void);
+		void	print(void);
 };
 
 struct http_request {

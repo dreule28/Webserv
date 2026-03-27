@@ -6,6 +6,8 @@
 std::string	errorResponse(const int error_code) {
 	HttpResponse response(error_code);
 
+	// std::cout << RED << "METHOD NOT ALLOWED" << RESET << std::endl;
+
 	std::string error_message = HTTP_STATUS_MESSAGES.at(error_code);
 
 	response.setHeader("Content-Type", "text/html");

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Test - Webserv</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Form Test Page</h1>
+        <p>Test POST and GET requests with this form.</p>
+
+        <h3>GET Form</h3>
+        <form method="GET" action="index.html">
+            <label>Name:</label>
+            <input type="text" name="name" placeholder="Your name">
+            <label>Email:</label>
+            <input type="email" name="email" placeholder="your@email.com">
+            <button type="submit">Submit (GET)</button>
+        </form>
+
+        <h3>POST Form</h3>
+        <form method="POST" action="/">
+            <label>Message:</label>
+            <textarea name="message" rows="4" placeholder="Enter your message"></textarea>
+            <label>Category:</label>
+            <select name="category">
+                <option value="general">General</option>
+                <option value="bug">Bug Report</option>
+                <option value="feature">Feature Request</option>
+            </select>
+            <button type="submit">Submit (POST)</button>
+        </form>
+
+        <p style="margin-top: 20px;"><a href="index.html">Back to Home</a></p>
+    </div>
+</body>
+</html>

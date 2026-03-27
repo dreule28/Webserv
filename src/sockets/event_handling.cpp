@@ -10,6 +10,7 @@ Connection create_client_socket(Connection con)
 	client_socket._poll_fd.revents = 0;
 	client_socket._fd_flag = CLIENT_FD;
 	client_socket._write_index = 0;
+	client_socket._serverConfig = con._serverConfig;
 
 	struct sockaddr_in client_addr;
 	socklen_t client_addr_len = sizeof(client_addr);
@@ -24,7 +25,7 @@ Connection create_client_socket(Connection con)
 	{
 		std::cout << GREEN << "Client connected: " << client_fd << RESET << std::endl;
     	}
-    
+
     	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
     	{
 		std::cerr << RED << "fcntl error: " << strerror(errno) << RESET << std::endl;
@@ -34,7 +35,7 @@ Connection create_client_socket(Connection con)
 
 	client_socket._poll_fd.fd = client_fd;
 	client_socket._poll_fd.events = POLLIN;
-	
+
     	return(client_socket);
 }
 

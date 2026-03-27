@@ -91,7 +91,7 @@ Methods HttpRequest::stringToMethod(const std::string& methodStr) {
 }
 
 void HttpRequest::print() const {
-	std::cout << "Method: " << methodToString(method) << std::endl;
+	std::cout << "\nMethod: " << methodToString(method) << std::endl;
 	std::cout << "Target: " << target << std::endl;
 	std::cout << "Path: " << path << std::endl;
 	std::cout << "Query: " << query << std::endl;
@@ -100,5 +100,5 @@ void HttpRequest::print() const {
 	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
 		std::cout << "  " << it->first << ": " << it->second << std::endl;
 	std::cout << "Body: " << body << std::endl;
-	std::cout << "Content-Length: " << contentLength << std::endl;
+	std::cout << "Content-Length: " << contentLength << "\n" << std::endl;
 }

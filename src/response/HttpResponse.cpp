@@ -47,6 +47,18 @@ void HttpResponse::setStandardHeader(void) {
 		headers["Content-Length"] = std::to_string(body.size());
 }
 
+void	HttpResponse::print(void) {
+	std::cout << "\n=== HTTP Response ===" << std::endl;
+	std::cout << "Status: " << status << " " << HTTP_STATUS_MESSAGES.at(status) << std::endl;
+	std::cout << "Headers:" << std::endl;
+	for (std::map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
+		std::cout << "  " << it->first << ": " << it->second << std::endl;
+	std::cout << "Body Length: " << body.length() << std::endl;
+	if (!body.empty() && body.length() <= 200)
+		std::cout << "Body: " << body << std::endl;
+	std::cout << "=====================\n" << std::endl;
+}
+
 std::string HttpResponse::build(void) {
 	setStandardHeader();
 
@@ -63,10 +75,15 @@ std::string HttpResponse::build(void) {
 	if (!body.empty())
 		ss << body;
 
+	// std::cout << ss.str() << std::endl;
+	print();
+
 	return ss.str();
 }
 
 std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations) {
+	request.print();
+
 	const LocationConfig *loc = routeMatching(request.path, locations);
 	int status = 200;
 	std::stringstream ss;
