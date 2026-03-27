@@ -14,7 +14,7 @@ void HttpRequest::parseReqline(HttpRequest& req, const std::string& rawReq) {
 	req.method = (methodStr == "GET") ? GET
 				: (methodStr == "POST") ? POST
 				: (methodStr == "DELETE") ? DELETE
-				: UNKNOWN;
+				: UNKOWN;
 	req.target = targetStr;
 	req.version = versionStr;
 
@@ -70,14 +70,24 @@ HttpRequest HttpRequest::parseRequest(const std::string& rawReq) {
 	return req;
 }
 
-static const char *methodToString(HttpRequest::Methods method) {
-	if (method == HttpRequest::GET)
+static const char *methodToString(Methods method) {
+	if (method == GET)
 		return "GET";
-	if (method == HttpRequest::POST)
+	if (method == POST)
 		return "POST";
-	if (method == HttpRequest::DELETE)
+	if (method == DELETE)
 		return "DELETE";
 	return "UNKNOWN";
+}
+
+Methods HttpRequest::stringToMethod(const std::string& methodStr) {
+	if (methodStr == "GET")
+		return GET;
+	if (methodStr == "POST")
+		return POST;
+	if (methodStr == "DELETE")
+		return DELETE;
+	return UNKOWN;
 }
 
 void HttpRequest::print() const {

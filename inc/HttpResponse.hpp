@@ -6,6 +6,7 @@
 #include <map>
 #include <unordered_map>
 #include "Config/LocationConfig.hpp"
+#include "Config/HttpRequest.hpp"
 
 // MIME type mappings (using unordered_map for O(1) lookup)
 static const std::unordered_map<std::string, std::string> MIME_TYPES = {
@@ -74,9 +75,9 @@ const LocationConfig	*routeMatching(const std::string &uri, const std::vector<Lo
 bool	checkMethod(const Methods method, const LocationConfig *location);
 std::string buildRealPath(const LocationConfig *loc, const std::string &request_path, bool &is_dir);
 int	checkFile(std::string file_path, Methods method);
-std::string response(const http_request &request, const std::vector<LocationConfig> &locations);
+std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations);
 
 std::string	errorResponse(const int error_code);
 std::string getContentType(const std::string &file_path);
 
-std::string mock_response(void);
+// std::string mock_response(void);

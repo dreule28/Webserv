@@ -53,7 +53,7 @@ void handle_pollin_request(Connection &con)
 	if(con._read_buffer.find("\r\n\r\n") != std::string::npos)
 	{
 		con._fullReq = con._fullReq.parseRequest(con._read_buffer);
-		con._write_buffer = mock_response();
+		con._write_buffer = response(con._fullReq, con._serverConfig.locations);
 		con._poll_fd.events = POLLOUT;
 		return ;
 	}

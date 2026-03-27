@@ -1,5 +1,5 @@
 #include "HttpResponse.hpp"
-#include "HttpRequest.hpp"
+#include "Config/HttpRequest.hpp"
 #include <filesystem>
 
 int	checkFile(std::string file_path, Methods method) {

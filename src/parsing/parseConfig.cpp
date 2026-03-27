@@ -132,7 +132,7 @@ void ConfigParser::parseLocation(std::stringstream& ss, ServerConfig& server, co
 					throw std::runtime_error("Line " + std::to_string(line) + ": invalid value for methods: " + token);
 				std::string method = stripSemicolon(token);
 				if (!method.empty())
-					loc.methods.push_back(method);
+					loc.methods.push_back(HttpRequest::stringToMethod(method));
 				if (semicolonCount == 1)
 					break;
 			}

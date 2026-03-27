@@ -1,5 +1,5 @@
 #include "HttpResponse.hpp"
-#include "HttpRequest.hpp"
+#include "Config/HttpRequest.hpp"
 #include "Config/LocationConfig.hpp"
 
 bool	checkMethod(const Methods method, const LocationConfig *location) {
