@@ -33,7 +33,7 @@ class HttpRequest {
 
 	void parseReqline(HttpRequest& req, const std::string& rawReq);
 	void parseHeaders(HttpRequest& req, const std::string& rawReq);
-	HttpRequest parseRequest(const std::string& rawReq);
+	HttpRequest parseRequest(const std::string& rawReq, std::string body);
 	void print() const;
 
 	static Methods stringToMethod(const std::string& methodStr);

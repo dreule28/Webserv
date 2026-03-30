@@ -61,12 +61,13 @@ void HttpRequest::parseHeaders(HttpRequest& req, const std::string& rawReq) {
 	}
 }
 
-HttpRequest HttpRequest::parseRequest(const std::string& rawReq) {
+HttpRequest HttpRequest::parseRequest(const std::string& rawReq, std::string body) {
 	if (rawReq.empty())
 		throw std::runtime_error("Error: Empty request");
 	HttpRequest req;
 	parseReqline(req, rawReq);
 	parseHeaders(req, rawReq);
+	_body = body;
 	return req;
 }
 
