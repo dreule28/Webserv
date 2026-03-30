@@ -10,8 +10,8 @@ std::string	get_method(const std::string &file_path, bool is_dir, const HttpRequ
 			<< "<h1>Directory: " << file_path << "</h1>\n";
 
 			for (const auto & entry : std::filesystem::directory_iterator(file_path))
-				ss << "<a href='" << request.path << "/" << entry.path().filename().string() << "'>"
-					<< request.path << "/" << entry.path().filename().string() << "</a><br>\n";
+				ss << "<a href='" << request._path << "/" << entry.path().filename().string() << "'>"
+					<< request._path << "/" << entry.path().filename().string() << "</a><br>\n";
 
 		ss << "</body></html>";
 
