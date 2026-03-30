@@ -22,7 +22,7 @@ Connection connect_client(Connection &con, size_t index)
 
 bool recv_error(ssize_t bytes)
 {
-    	if(bytes == 0)
+    if(bytes == 0)
 	{
 		std::cout << YELLOW << "Client disconnected" << RESET << std::endl;
 		return (true);
@@ -32,7 +32,7 @@ bool recv_error(ssize_t bytes)
 		std::cerr << RED << "recv error" << RESET << std::endl;
 		return (true);
 	}
-    	return (false);
+    return (false);
 }
 
 void close_connection(Connection &con)

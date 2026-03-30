@@ -54,13 +54,21 @@ void handle_pollin_request(Connection &con)
 	if(delimiter_pos != std::string::npos)
 	{
 		std::string headers = con._read_buffer.substr(0, delimiter_pos + 4);
-		std::string body = con._read_buffer.substr(delimiter_pos + 4);
 
-		con._fullReq = con._fullReq.parseRequest(headers, body);
-
+		con._fullReq = con._fullReq.parseRequest(headers);
+		if(con._fullReq._method == POST)
+		{
+			std::string body = con._read_buffer.substr(delimiter_pos + 4);
+			if(con._fullReq._contentLength == sizeof(body))
+			{
+				con._write_buffer = response(con._fullReq, con._serverConfig.locations);
+				con._poll_fd.events = POLLOUT;
+				return;
+			}
+			con._fullReq._body = body;
+		}
 		con._write_buffer = response(con._fullReq, con._serverConfig.locations);
 		con._poll_fd.events = POLLOUT;
-		return ;
 	}
 }
 
