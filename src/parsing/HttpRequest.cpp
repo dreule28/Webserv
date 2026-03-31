@@ -51,13 +51,42 @@ void HttpRequest::parseHeaders(HttpRequest& req, const std::string& rawReq) {
 			value.erase(0, 1);
 		std::transform(key.begin(), key.end(), key.begin(), ::tolower);
 		req._headers[key] = value;
-		if (req._headers.count("content-length"))
-			req._contentLength = std::atoi(req._headers["content-length"].c_str());
-		else
-			req._contentLength = 0;
-		if (bodyPart.size() < req._contentLength)
-			return;
-		req._body = bodyPart; //.substr(0, req.contentLength);
+	}
+}
+
+void HttpRequest::parseChunked(HttpRequest& req, const std::string& body) {
+	size_t pos = 0;
+
+	while (pos < body.size()) {
+		size_t lineEnd = body.find("\r\n", pos);
+		if (lineEnd == std::string::npos)
+			break;
+		size_t chunkSize = std::strtoul(body.c_str() + pos, nullptr, 16);
+		pos = lineEnd + 2;
+
+		if (chunkSize == 0)
+			break;
+		if (pos + chunkSize > body.size())
+			throw std::runtime_error("Incomplete chunked body");
+
+		req._body += body.substr(pos, chunkSize);
+		pos += chunkSize + 2;
+	}
+	req._isChunked = true;
+	req._contentLength = req._body.size();
+}
+
+void HttpRequest::parseBody(HttpRequest& req, const std::string& rawReq) {
+	size_t bodyStart = rawReq.find("\r\n\r\n");
+	if (bodyStart == std::string::npos)
+		return;
+	std::string body = rawReq.substr(bodyStart + 4);
+
+	if (req._headers.count("transfer-encoding") && req._headers["transfer-encoding"] == "chunked")
+		parseChunked(req, body);
+	else if (req._headers.count("content-length")) {
+		req._contentLength = std::atoi(req._headers["content-length"].c_str());
+		req._body = body.substr(0, req._contentLength);
 	}
 }
 
@@ -67,6 +96,7 @@ HttpRequest HttpRequest::parseRequest(const std::string& rawReq) {
 	HttpRequest req;
 	parseReqline(req, rawReq);
 	parseHeaders(req, rawReq);
+	parseBody(req, rawReq);
 	return req;
 }
 

@@ -28,11 +28,14 @@ class HttpRequest {
 
 	std::string _body;
 
+	bool _isChunked;
 	size_t _contentLength;
 	bool _keepAlive;
 
 	void parseReqline(HttpRequest& req, const std::string& rawReq);
 	void parseHeaders(HttpRequest& req, const std::string& rawReq);
+	void parseBody(HttpRequest& req, const std::string& rawReq);
+	void parseChunked(HttpRequest& req, const std::string& body);
 	HttpRequest parseRequest(const std::string& rawReq);
 	void print() const;
 
