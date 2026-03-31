@@ -21,3 +21,13 @@ std::string ConfigParser::jointPaths(const std::string& root, const std::string&
 		fullPath /= subpath;
 	return fullPath.string();
 }
+
+Methods HttpRequest::stringToMethod(const std::string& methodStr) {
+	if (methodStr == "GET")
+		return GET;
+	if (methodStr == "POST")
+		return POST;
+	if (methodStr == "DELETE")
+		return DELETE;
+	return UNKOWN;
+}

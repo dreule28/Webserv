@@ -80,16 +80,6 @@ static const char *methodToString(Methods method) {
 	return "UNKNOWN";
 }
 
-Methods HttpRequest::stringToMethod(const std::string& methodStr) {
-	if (methodStr == "GET")
-		return GET;
-	if (methodStr == "POST")
-		return POST;
-	if (methodStr == "DELETE")
-		return DELETE;
-	return UNKOWN;
-}
-
 void HttpRequest::print() const {
 	std::cout << "\nMethod: " << methodToString(_method) << std::endl;
 	std::cout << "Target: " << _target << std::endl;
