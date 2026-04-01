@@ -41,7 +41,6 @@ Connection create_client_socket(Connection con)
 
 void handle_pollin_request(Connection &con)
 {
-	bool isChuncked = true;
 	char buffer[RECV_BUFFER_SIZE];
 	ssize_t bytes = recv(con._poll_fd.fd, buffer, sizeof(buffer), 0);
 	if(recv_error(bytes))
@@ -57,7 +56,7 @@ void handle_pollin_request(Connection &con)
 		std::string headers = con._read_buffer.substr(0, delimiter_pos + 4);
 
 		con._fullReq = con._fullReq.parseRequest(headers);
-		if(con._fullReq._method == POST && isChuncked == true)
+		if(con._fullReq._method == POST && con._fullReq._isChunked == true)
 		{
 			build_chunked_body(con);
 		}
