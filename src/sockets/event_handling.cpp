@@ -18,7 +18,7 @@ Connection create_client_socket(Connection con)
 	int client_fd = accept(con._poll_fd.fd, (struct sockaddr *)&client_addr, &client_addr_len);
 	if(client_fd == -1)
 	{
-		std::cerr << RED << "accept error" << RESET << std::endl;
+		std::cerr << RED << "accept error: " << RESET << std::endl;
 		return (client_socket);
     }
 	else
@@ -28,7 +28,7 @@ Connection create_client_socket(Connection con)
 
     	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
     	{
-			std::cerr << RED << "fcntl error: " << strerror(errno) << RESET << std::endl;
+			std::cerr << RED << "fcntl error: " << RESET << std::endl;
 			close(client_fd);
       		return (client_socket);
     	}
@@ -59,6 +59,7 @@ void handle_pollin_request(Connection &con)
 		if(con._fullReq._method == POST && con._fullReq._isChunked == true)
 		{
 			build_chunked_body(con);
+			return;
 		}
 		if(con._fullReq._method == POST)
 		{
@@ -70,6 +71,7 @@ void handle_pollin_request(Connection &con)
 				return;
 			}
 			con._fullReq._body = body;
+			return;
 		}
 		
 		con._write_buffer = response(con._fullReq, con._serverConfig.locations);
@@ -98,11 +100,13 @@ void handle_pollout_request(Connection &con)
     	}
     	else if (bytes == -1)
 	{
-		std::cerr << RED << "send error" << RESET << std::endl;
+		std::cerr << RED << "send error: " << RESET << std::endl;
 		close_connection(con);
 		return ;
     	}
     	con._write_index += bytes;
+		if (con._write_index >= con._write_buffer.length())
+			close_connection(con);
 }
 
 void handle_pollerr_pollhup_request(Connection &con)

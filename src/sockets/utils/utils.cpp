@@ -29,7 +29,7 @@ bool recv_error(ssize_t bytes)
 	}
 	else if (bytes == -1)
 	{
-		std::cerr << RED << "recv error" << RESET << std::endl;
+		std::cerr << RED << "recv error: " << RESET << std::endl;
 		return (true);
 	}
     return (false);

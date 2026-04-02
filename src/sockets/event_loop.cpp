@@ -13,7 +13,7 @@ void event_loop(std::vector<Connection> &con)
 		int ready = poll(poll_array.data(), con.size(), -1);
 		if (ready == -1)
 		{
-			std::cerr << RED << "poll error" << RESET << std::endl;
+			std::cerr << RED << "poll error: " << RESET << std::endl;
 			break;
 		}
 
@@ -22,6 +22,8 @@ void event_loop(std::vector<Connection> &con)
 		//check revents for each connection
 		for(size_t i = 0; i < con.size(); i++)
 		{
+			if (poll_array[i].revents == 0)
+				continue;
 			if(isPOLLIN(poll_array[i]))
 			{
 				std::cout << BLUE << "POLLIN" << RESET << std::endl;
