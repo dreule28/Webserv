@@ -1,9 +1,11 @@
 #include "HttpResponse.hpp"
 #include "methods.hpp"
+#include "Config/HttpRequest.hpp"
 #include <iostream>
 #include <fstream>
 #include <cassert>
 #include <filesystem>
+#include <sstream>
 #include <vector>
 
 // ANSI color codes for test output
@@ -17,13 +19,13 @@ static int g_tests_passed = 0;
 static int g_tests_failed = 0;
 
 // Helper: Print HTTP request
-void print_request(const http_request &req) {
+void print_request(const HttpRequest &req) {
 	std::cout << "  " << TEST_BLUE << "REQUEST:" << TEST_RESET << std::endl;
-	std::cout << "    Method: " << req.method << std::endl;
-	std::cout << "    Path: " << req.path << std::endl;
-	std::cout << "    HTTP Version: " << req.http_version << std::endl;
-	if (!req.body.empty()) {
-		std::cout << "    Body: \"" << req.body << "\"" << std::endl;
+	std::cout << "    Method: " << req._method << std::endl;
+	std::cout << "    Path: " << req._path << std::endl;
+	std::cout << "    HTTP Version: " << req._version << std::endl;
+	if (!req._body.empty()) {
+		std::cout << "    Body: \"" << req._body << "\"" << std::endl;
 	}
 }
 
@@ -75,7 +77,7 @@ void cleanup_test_file(const std::string &path) {
 
 // Helper: Create a LocationConfig for testing
 LocationConfig create_test_location(const std::string &path, const std::string &root,
-									const std::vector<std::string> &methods) {
+									const std::vector<Methods> &methods) {
 	LocationConfig loc;
 	loc.path = path;
 	loc.root = root;
@@ -84,15 +86,18 @@ LocationConfig create_test_location(const std::string &path, const std::string &
 	return loc;
 }
 
-// Helper: Create an http_request for testing
-http_request create_test_request(const std::string &method, const std::string &path,
-								 const std::string &body = "") {
-	http_request req;
-	req.method = method;
-	req.path = path;
-	req.http_version = "HTTP/1.1";
-	req.body = body;
-	return req;
+// Helper: Build a raw HTTP request string and parse it into an HttpRequest
+HttpRequest create_test_request(const std::string &method, const std::string &path,
+								const std::string &body = "") {
+	std::string raw = method + " " + path + " HTTP/1.1\r\n";
+	raw += "Host: localhost\r\n";
+	if (!body.empty()) {
+		raw += "Content-Length: " + std::to_string(body.size()) + "\r\n";
+	}
+	raw += "\r\n";
+	raw += body;
+	HttpRequest req;
+	return req.parseRequest(raw);
 }
 
 // ============================================================================
@@ -109,11 +114,11 @@ void test_get_success() {
 	// Setup
 	create_test_file(test_file, test_content);
 
-	std::vector<std::string> allowed_methods = {"GET", "POST", "DELETE"};
+	std::vector<Methods> allowed_methods = {GET, POST, DELETE};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("GET", "/webserv_test_get.txt");
+	HttpRequest req = create_test_request("GET", "/webserv_test_get.txt");
 
 	// Print request
 	print_request(req);
@@ -141,11 +146,11 @@ void test_get_file_not_found() {
 	// Ensure file doesn't exist
 	cleanup_test_file(test_file);
 
-	std::vector<std::string> allowed_methods = {"GET", "POST", "DELETE"};
+	std::vector<Methods> allowed_methods = {GET, POST, DELETE};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("GET", "/webserv_test_nonexistent.txt");
+	HttpRequest req = create_test_request("GET", "/webserv_test_nonexistent.txt");
 
 	// Print request
 	print_request(req);
@@ -172,11 +177,11 @@ void test_post_create_new_file() {
 	// Setup - ensure file doesn't exist
 	cleanup_test_file(test_file);
 
-	std::vector<std::string> allowed_methods = {"GET", "POST", "DELETE"};
+	std::vector<Methods> allowed_methods = {GET, POST, DELETE};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("POST", "/webserv_test_post_new.txt", test_content);
+	HttpRequest req = create_test_request("POST", "/webserv_test_post_new.txt", test_content);
 
 	// Print request
 	print_request(req);
@@ -207,11 +212,11 @@ void test_post_append_existing_file() {
 	// Setup - create existing file
 	create_test_file(test_file, initial_content);
 
-	std::vector<std::string> allowed_methods = {"GET", "POST", "DELETE"};
+	std::vector<Methods> allowed_methods = {GET, POST, DELETE};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("POST", "/webserv_test_post_existing.txt", new_content);
+	HttpRequest req = create_test_request("POST", "/webserv_test_post_existing.txt", new_content);
 
 	// Print request
 	print_request(req);
@@ -240,11 +245,11 @@ void test_delete_success() {
 	// Setup - create file to delete
 	create_test_file(test_file, "To be deleted");
 
-	std::vector<std::string> allowed_methods = {"GET", "POST", "DELETE"};
+	std::vector<Methods> allowed_methods = {GET, POST, DELETE};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("DELETE", "/webserv_test_delete.txt");
+	HttpRequest req = create_test_request("DELETE", "/webserv_test_delete.txt");
 
 	// Print request
 	print_request(req);
@@ -276,11 +281,11 @@ void test_delete_file_not_found() {
 	// Setup - ensure file doesn't exist
 	cleanup_test_file(test_file);
 
-	std::vector<std::string> allowed_methods = {"GET", "POST", "DELETE"};
+	std::vector<Methods> allowed_methods = {GET, POST, DELETE};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("DELETE", "/webserv_test_delete_nonexistent.txt");
+	HttpRequest req = create_test_request("DELETE", "/webserv_test_delete_nonexistent.txt");
 
 	// Print request
 	print_request(req);
@@ -301,11 +306,11 @@ void test_delete_file_not_found() {
 void test_method_not_allowed() {
 	std::cout << TEST_BLUE << "Test 7: Method not allowed" << TEST_RESET << std::endl;
 
-	std::vector<std::string> allowed_methods = {"GET"};  // Only GET allowed
+	std::vector<Methods> allowed_methods = {GET}; // Only GET allowed
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("POST", "/test.txt", "content");
+	HttpRequest req = create_test_request("POST", "/test.txt", "content");
 
 	// Print request
 	print_request(req);
@@ -333,14 +338,14 @@ void test_multiple_locations() {
 	std::filesystem::create_directories("/tmp/api");
 	create_test_file(test_file, test_content);
 
-	std::vector<std::string> methods1 = {"GET"};
-	std::vector<std::string> methods2 = {"GET", "POST"};
+	std::vector<Methods> methods1 = {GET};
+	std::vector<Methods> methods2 = {GET, POST};
 
 	LocationConfig loc1 = create_test_location("/", "/tmp/", methods1);
 	LocationConfig loc2 = create_test_location("/api/", "/tmp/api/", methods2);
 	std::vector<LocationConfig> locations = {loc1, loc2};
 
-	http_request req = create_test_request("GET", "/api/webserv_test_api.txt");
+	HttpRequest req = create_test_request("GET", "/api/webserv_test_api.txt");
 
 	// Print request
 	print_request(req);
@@ -369,11 +374,11 @@ void test_get_empty_file() {
 	// Setup - create empty file
 	create_test_file(test_file, "");
 
-	std::vector<std::string> allowed_methods = {"GET"};
+	std::vector<Methods> allowed_methods = {GET};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("GET", "/webserv_test_empty.txt");
+	HttpRequest req = create_test_request("GET", "/webserv_test_empty.txt");
 
 	// Print request
 	print_request(req);
@@ -403,11 +408,11 @@ void test_post_empty_body() {
 	// Setup - ensure file doesn't exist
 	cleanup_test_file(test_file);
 
-	std::vector<std::string> allowed_methods = {"POST"};
+	std::vector<Methods> allowed_methods = {POST};
 	LocationConfig loc = create_test_location("/", "/tmp/", allowed_methods);
 	std::vector<LocationConfig> locations = {loc};
 
-	http_request req = create_test_request("POST", "/webserv_test_post_empty.txt", "");
+	HttpRequest req = create_test_request("POST", "/webserv_test_post_empty.txt", "");
 
 	// Print request
 	print_request(req);

@@ -41,7 +41,6 @@ Connection create_client_socket(Connection con)
 
 void handle_pollin_request(Connection &con)
 {
-	bool isChuncked = true;
 	char buffer[RECV_BUFFER_SIZE];
 	ssize_t bytes = recv(con._poll_fd.fd, buffer, sizeof(buffer), 0);
 	if(recv_error(bytes))
@@ -52,30 +51,21 @@ void handle_pollin_request(Connection &con)
 
 	con._read_buffer.append(buffer, static_cast<size_t>(bytes));
 	size_t delimiter_pos = con._read_buffer.find("\r\n\r\n");
-	if(delimiter_pos != std::string::npos)
-	{
-		std::string headers = con._read_buffer.substr(0, delimiter_pos + 4);
+	if(delimiter_pos == std::string::npos)
+		return ;
 
-		con._fullReq = con._fullReq.parseRequest(headers);
-		if(con._fullReq._method == POST && isChuncked == true)
-		{
-			build_chunked_body(con);
-		}
-		if(con._fullReq._method == POST)
-		{
-			std::string body = con._read_buffer.substr(delimiter_pos + 4);
-			if(con._fullReq._contentLength == sizeof(body))
-			{
-				con._write_buffer = response(con._fullReq, con._serverConfig.locations);
-				con._poll_fd.events = POLLOUT;
-				return;
-			}
-			con._fullReq._body = body;
-		}
-		
-		con._write_buffer = response(con._fullReq, con._serverConfig.locations);
-		con._poll_fd.events = POLLOUT;
+	con._fullReq = con._fullReq.parseRequest(con._read_buffer);
+
+	if (con._fullReq._method == POST && con._fullReq._isChunked == false
+		&& con._fullReq._contentLength > 0)
+	{
+		size_t received_body = con._read_buffer.size() - (delimiter_pos + 4);
+		if (received_body < con._fullReq._contentLength)
+			return ;
 	}
+
+	con._write_buffer = response(con._fullReq, con._serverConfig.locations);
+	con._poll_fd.events = POLLOUT;
 }
 
 void handle_pollout_request(Connection &con)
@@ -104,6 +94,11 @@ void handle_pollout_request(Connection &con)
 		return ;
     	}
     	con._write_index += bytes;
+    	if (con._write_index >= con._write_buffer.size())
+    	{
+    		std::cout << GREEN << "Response fully sent, closing connection" << RESET << std::endl;
+    		close_connection(con);
+    	}
 }
 
 void handle_pollerr_pollhup_request(Connection &con)

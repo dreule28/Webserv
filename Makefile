@@ -46,7 +46,9 @@ TEST_SRC := src/response/test.cpp \
 			src/response/error.cpp \
 			src/methods/GET.cpp \
 			src/methods/POST.cpp \
-			src/methods/DELETE.cpp
+			src/methods/DELETE.cpp \
+			src/parsing/HttpRequest.cpp \
+			src/parsing/utils.cpp
 
 ################################################################################
 ###############                     RULES                         ##############
