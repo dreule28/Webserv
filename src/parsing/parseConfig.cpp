@@ -101,6 +101,10 @@ void ConfigParser::parseServer(std::stringstream& ss, Config& config, std::size_
 			parseLocation(ss, server, path, line, locationLine);
 		}
 	}
+	if (server.port == 0)
+		throw std::runtime_error("Server block missing required 'listen' directive");
+	if (server.root.empty())
+		throw std::runtime_error("Server block missing required 'root' directive");
 	config.servers.push_back(server);
 }
 
