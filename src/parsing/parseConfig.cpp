@@ -83,6 +83,9 @@ void ConfigParser::parseServer(std::stringstream& ss, Config& config, std::size_
 			token = nextToken(ss, line);
 			requireSingleTrailingSemicolon(token, line, "root");
 			server.root = stripSemicolon(token);
+			if (!server.root.empty() && !isDirectory(server.root)) {
+				throw std::runtime_error("Line " + std::to_string(line) + ": root directory does not exist: " + server.root);
+			}
 		}
 		else if (token == "index") {
 			token = nextToken(ss, line);
