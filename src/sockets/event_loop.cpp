@@ -49,8 +49,8 @@ void event_loop(std::vector<Connection> &con)
 				handle_pollerr_pollhup_request(con[i]);
 			}
 		}
-        	for (auto& client : new_clients)
-            	con.push_back(client);
+        for (auto& client : new_clients)
+        	con.push_back(client);
 
 		remove_closed_connection(con);
 	}

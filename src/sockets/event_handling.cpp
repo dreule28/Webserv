@@ -63,7 +63,7 @@ void handle_pollin_request(Connection &con)
 		if(con._fullReq._method == POST)
 		{
 			std::string body = con._read_buffer.substr(delimiter_pos + 4);
-			if(con._fullReq._contentLength == sizeof(body))
+			if(con._fullReq._contentLength == body.size())
 			{
 				con._write_buffer = response(con._fullReq, con._serverConfig.locations);
 				con._poll_fd.events = POLLOUT;

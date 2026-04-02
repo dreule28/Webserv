@@ -11,7 +11,7 @@ std::vector<Connection> setup_sockets(Config config)
       	int socket_fd = create_socket_fds(std::to_string(port));
       	if(socket_fd == -1)
       	{
-            	std::cout << RED << "socket_fd creation failed" << std::endl;
+            std::cout << RED << "socket_fd creation failed" << std::endl;
 			break;
       	}
         
