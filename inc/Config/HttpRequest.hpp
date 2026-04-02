@@ -12,7 +12,7 @@ typedef enum {
 	GET,
 	POST,
 	DELETE,
-	UNKOWN = -1
+	UNKNOWN = -1
 } Methods;
 
 class HttpRequest {
