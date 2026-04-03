@@ -72,7 +72,7 @@ void ConfigParser::parseServer(std::stringstream& ss, Config& config, std::size_
 		if (token == "listen") {
 			token = nextToken(ss, line);
 			requireSingleTrailingSemicolon(token, line, "listen");
-			server.port = std::stoi(stripSemicolon(token));
+			server.port = std::strtol(stripSemicolon(token).c_str(), NULL, 10);
 		}
 		else if (token == "host") {
 			token = nextToken(ss, line);
@@ -129,6 +129,8 @@ void ConfigParser::parseLocation(std::stringstream& ss, ServerConfig& server, co
 				std::string method = stripSemicolon(token);
 				if (!method.empty())
 					loc.methods.push_back(HttpRequest::stringToMethod(method));
+				if (loc.methods.back() == -1)
+					throw std::runtime_error("Line " + std::to_string(line) + ": invalid method:" + token);
 				if (semicolonCount == 1)
 					break;
 			}
