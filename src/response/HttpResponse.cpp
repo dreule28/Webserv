@@ -95,6 +95,26 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 	bool is_dir = false;
 	std::string file_path(buildRealPath(loc, request.path, is_dir));
 
+	// Check if CGI is enabled for this location and the file matches the CGI extension
+	if (loc && loc->cgiEnabled && !is_dir) {
+		size_t dot_pos = file_path.find_last_of('.');
+		if (dot_pos != std::string::npos) {
+			std::string extension = file_path.substr(dot_pos);
+			if (extension == loc->cgiExtensions) {
+				HttpResponse cgi_response(200);
+				HttpRequest &mutable_request = const_cast<HttpRequest&>(request);
+				status = processCgi(mutable_request, file_path, cgi_response);
+
+				if (status == 200) {
+					cgi_response.status = status;
+					cgi_response.setHeader("Content-Type", "text/html");
+					return cgi_response.build();
+				}
+				return errorResponse(status);
+			}
+		}
+	}
+
 	if (request.method == GET || request.method == DELETE) {
 		status = checkFile(file_path, request.method);
 		if (status != 200) {
