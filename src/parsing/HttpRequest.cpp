@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <map>
 
 void HttpRequest::parseReqline(HttpRequest& req, const std::string& rawReq) {
 	std::stringstream ss(rawReq);
@@ -117,7 +118,7 @@ void HttpRequest::print() const {
 	std::cout << "Query: " << _query << std::endl;
 	std::cout << "Version: " << _version << std::endl;
 	std::cout << "Headers:" << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
+	for (std::unordered_map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
 		std::cout << "  " << it->first << ": " << it->second << std::endl;
 	std::cout << "Body: " << _body << std::endl;
 	std::cout << "Content-Length: " << _contentLength << "\n" << std::endl;

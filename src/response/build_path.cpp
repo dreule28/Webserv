@@ -12,11 +12,13 @@ std::string buildRealPath(const LocationConfig *loc, const std::string &request_
 	// Combine root with the relative path
 	std::string full_path = loc->root;
 
-	// Ensure root ends with / and relative doesn't start with /
-	if (!full_path.empty() && full_path[full_path.length() - 1] != '/') {
+	// Add separator between root and relative path if needed
+	bool root_has_slash = !full_path.empty() && full_path[full_path.length() - 1] == '/';
+	bool relative_has_slash = !relative_path.empty() && relative_path[0] == '/';
+
+	if (!root_has_slash && !relative_has_slash && !relative_path.empty()) {
 		full_path += '/';
-	}
-	if (!relative_path.empty() && relative_path[0] == '/') {
+	} else if (root_has_slash && relative_has_slash) {
 		relative_path = relative_path.substr(1);
 	}
 
