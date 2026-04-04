@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -24,7 +24,7 @@ class HttpRequest {
 	std::string query;
 	std::string version;
 
-	std::map<std::string, std::string> headers;
+	std::unordered_map<std::string, std::string> headers;
 
 	std::string body;
 

@@ -81,4 +81,6 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 std::string	errorResponse(const int error_code);
 std::string getContentType(const std::string &file_path);
 
+int processCgi(HttpRequest &request, const std::string &script_path, HttpResponse &response);
+
 // std::string mock_response(void);
