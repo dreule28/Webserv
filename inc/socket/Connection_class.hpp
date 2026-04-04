@@ -21,7 +21,7 @@ class Connection{
         
         struct pollfd _poll_fd;
 
-        std::string _read_buffer; // braucht daniel zum parsen
+        std::string _read_buffer;
 		HttpRequest _fullReq;        
 		ServerConfig _serverConfig;
         size_t _write_index;

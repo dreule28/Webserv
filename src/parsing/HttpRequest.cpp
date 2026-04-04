@@ -12,20 +12,20 @@ void HttpRequest::parseReqline(HttpRequest& req, const std::string& rawReq) {
 
 	if (!(ss >> methodStr >> targetStr >> versionStr))
 		throw std::runtime_error("Invalid request line");
-	req.method = (methodStr == "GET") ? GET
+	req._method = (methodStr == "GET") ? GET
 				: (methodStr == "POST") ? POST
 				: (methodStr == "DELETE") ? DELETE
-				: UNKOWN;
-	req.target = targetStr;
-	req.version = versionStr;
+				: UNKNOWN;
+	req._target = targetStr;
+	req._version = versionStr;
 
-	size_t pos = req.target.find('?');
+	size_t pos = req._target.find('?');
 	if (pos != std::string::npos) {
-		req.path = req.target.substr(0, pos);
-		req.query = req.target.substr(pos + 1);
+		req._path = req._target.substr(0, pos);
+		req._query = req._target.substr(pos + 1);
 	} else {
-		req.path = req.target;
-		req.query = "";
+		req._path = req._target;
+		req._query = "";
 	}
 }
 
@@ -51,14 +51,43 @@ void HttpRequest::parseHeaders(HttpRequest& req, const std::string& rawReq) {
 		while (!value.empty() && value[0] == ' ')
 			value.erase(0, 1);
 		std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-		req.headers[key] = value;
-		if (req.headers.count("content-length"))
-			req.contentLength = std::atoi(req.headers["content-length"].c_str());
-		else
-			req.contentLength = 0;
-		if (bodyPart.size() < req.contentLength)
-			return;
-		req.body = bodyPart; //.substr(0, req.contentLength);
+		req._headers[key] = value;
+	}
+}
+
+void HttpRequest::parseChunked(HttpRequest& req, const std::string& body) {
+	size_t pos = 0;
+
+	while (pos < body.size()) {
+		size_t lineEnd = body.find("\r\n", pos);
+		if (lineEnd == std::string::npos)
+			break;
+		size_t chunkSize = std::strtoul(body.c_str() + pos, nullptr, 16);
+		pos = lineEnd + 2;
+
+		if (chunkSize == 0)
+			break;
+		if (pos + chunkSize > body.size())
+			throw std::runtime_error("Incomplete chunked body");
+
+		req._body += body.substr(pos, chunkSize);
+		pos += chunkSize + 2;
+	}
+	req._isChunked = true;
+	req._contentLength = req._body.size();
+}
+
+void HttpRequest::parseBody(HttpRequest& req, const std::string& rawReq) {
+	size_t bodyStart = rawReq.find("\r\n\r\n");
+	if (bodyStart == std::string::npos)
+		return;
+	std::string body = rawReq.substr(bodyStart + 4);
+
+	if (req._headers.count("transfer-encoding") && req._headers["transfer-encoding"] == "chunked")
+		parseChunked(req, body);
+	else if (req._headers.count("content-length")) {
+		req._contentLength = std::strtol(req._headers["content-length"].c_str(), NULL, 10);
+		req._body = body.substr(0, req._contentLength);
 	}
 }
 
@@ -68,6 +97,7 @@ HttpRequest HttpRequest::parseRequest(const std::string& rawReq) {
 	HttpRequest req;
 	parseReqline(req, rawReq);
 	parseHeaders(req, rawReq);
+	parseBody(req, rawReq);
 	return req;
 }
 
@@ -81,25 +111,15 @@ static const char *methodToString(Methods method) {
 	return "UNKNOWN";
 }
 
-Methods HttpRequest::stringToMethod(const std::string& methodStr) {
-	if (methodStr == "GET")
-		return GET;
-	if (methodStr == "POST")
-		return POST;
-	if (methodStr == "DELETE")
-		return DELETE;
-	return UNKOWN;
-}
-
 void HttpRequest::print() const {
-	std::cout << "\nMethod: " << methodToString(method) << std::endl;
-	std::cout << "Target: " << target << std::endl;
-	std::cout << "Path: " << path << std::endl;
-	std::cout << "Query: " << query << std::endl;
-	std::cout << "Version: " << version << std::endl;
+	std::cout << "\nMethod: " << methodToString(_method) << std::endl;
+	std::cout << "Target: " << _target << std::endl;
+	std::cout << "Path: " << _path << std::endl;
+	std::cout << "Query: " << _query << std::endl;
+	std::cout << "Version: " << _version << std::endl;
 	std::cout << "Headers:" << std::endl;
 	for (std::unordered_map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
 		std::cout << "  " << it->first << ": " << it->second << std::endl;
-	std::cout << "Body: " << body << std::endl;
-	std::cout << "Content-Length: " << contentLength << "\n" << std::endl;
+	std::cout << "Body: " << _body << std::endl;
+	std::cout << "Content-Length: " << _contentLength << "\n" << std::endl;
 }

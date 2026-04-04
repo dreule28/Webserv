@@ -17,7 +17,7 @@ vpath %.cpp $(SRC_DIRS)
 ###############                  SOURCE FILES                     ##############
 ################################################################################
 
-SOCKETS_FILES := connection_class.cpp event_handling.cpp event_loop.cpp socket_creation.cpp
+SOCKETS_FILES := body_creation.cpp connection_class.cpp event_handling.cpp event_loop.cpp socket_creation.cpp 
 SOCKETS := $(addprefix sockets/, $(SOCKETS_FILES))
 
 SOCKETS_UTILS_FILES := utils.cpp event_loop_if_statments.cpp

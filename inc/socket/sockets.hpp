@@ -18,6 +18,9 @@
 
 class Connection;
 
+//body_creation.cpp
+void build_chunked_body(Connection &con);
+
 // event_handling.cpp
 Connection create_client_socket(Connection con);
 void handle_pollin_request(Connection &con);

@@ -84,16 +84,16 @@ std::string HttpResponse::build(void) {
 std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations) {
 	request.print();
 
-	const LocationConfig *loc = routeMatching(request.path, locations);
+	const LocationConfig *loc = routeMatching(request._path, locations);
 	int status = 200;
 	std::stringstream ss;
 
-	if (checkMethod(request.method, loc) == false) {
+	if (checkMethod(request._method, loc) == false) {
 		return errorResponse(405);
 	}
 
 	bool is_dir = false;
-	std::string file_path(buildRealPath(loc, request.path, is_dir));
+	std::string file_path(buildRealPath(loc, request._path, is_dir));
 
 	// Check if CGI is enabled for this location and the file matches the CGI extension
 	if (loc && loc->cgiEnabled && !is_dir) {
@@ -122,7 +122,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		}
 	}
 
-	if (request.method == GET) {
+	if (request._method == GET) {
 		HttpResponse response(200);
 		if (is_dir)
 			response.setHeader("Content-Type", "text/html");
@@ -131,14 +131,14 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		response.body = get_method(file_path, is_dir, request);
 		return response.build();
 	}
-	else if (request.method == POST) {
-		status = post_method(file_path, request.body);
+	else if (request._method == POST) {
+		status = post_method(file_path, request._body);
 		HttpResponse response(status);
 		response.setHeader("Content-Type", "application/json");
 		response.body = "{\"status\": \"success\"}";
 		return response.build();
 	}
-	else if (request.method == DELETE) {
+	else if (request._method == DELETE) {
 		status = delete_method(file_path);
 		HttpResponse response(status);
 		response.setHeader("Content-Type", "application/json");

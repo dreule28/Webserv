@@ -21,4 +21,5 @@
 #include "Config/Config.hpp"
 
 // webServ.hpp
+// void printConfig(const Config& config);
 void webServ(char *filename);
