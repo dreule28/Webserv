@@ -51,7 +51,7 @@ void HttpRequest::parseHeaders(HttpRequest& req, const std::string& rawReq) {
 		while (!value.empty() && value[0] == ' ')
 			value.erase(0, 1);
 		std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-		req._headers[key] = value;
+		req.headers[key] = value;
 	}
 }
 
@@ -83,10 +83,10 @@ void HttpRequest::parseBody(HttpRequest& req, const std::string& rawReq) {
 		return;
 	std::string body = rawReq.substr(bodyStart + 4);
 
-	if (req._headers.count("transfer-encoding") && req._headers["transfer-encoding"] == "chunked")
+	if (req.headers.count("transfer-encoding") && req.headers["transfer-encoding"] == "chunked")
 		parseChunked(req, body);
-	else if (req._headers.count("content-length")) {
-		req._contentLength = std::strtol(req._headers["content-length"].c_str(), NULL, 10);
+	else if (req.headers.count("content-length")) {
+		req._contentLength = std::strtol(req.headers["content-length"].c_str(), NULL, 10);
 		req._body = body.substr(0, req._contentLength);
 	}
 }

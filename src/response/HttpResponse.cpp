@@ -115,8 +115,8 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		}
 	}
 
-	if (request.method == GET || request.method == DELETE) {
-		status = checkFile(file_path, request.method);
+	if (request._method == GET || request._method == DELETE) {
+		status = checkFile(file_path, request._method);
 		if (status != 200) {
 				return errorResponse(status);
 		}

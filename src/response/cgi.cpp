@@ -25,7 +25,7 @@ int	processCgi(HttpRequest &request, const std::string &script_path, HttpRespons
 
 		// Convert method enum to string
 		std::string method_str;
-		switch (request.method) {
+		switch (request._method) {
 			case GET: method_str = "GET"; break;
 			case POST: method_str = "POST"; break;
 			case DELETE: method_str = "DELETE"; break;
@@ -38,7 +38,7 @@ int	processCgi(HttpRequest &request, const std::string &script_path, HttpRespons
 		if (ct_it != request.headers.end())
 			env_strings.push_back("CONTENT_TYPE=" + ct_it->second);
 
-		env_strings.push_back("CONTENT_LENGTH=" + std::to_string(request.body.size()));
+		env_strings.push_back("CONTENT_LENGTH=" + std::to_string(request._body.size()));
 		env_strings.push_back("SCRIPT_FILENAME=" + script_path);
 
 		std::vector<char*> env_ptr;
