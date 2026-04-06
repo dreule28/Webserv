@@ -5,6 +5,7 @@
 #include "color.hpp"
 #include "methods.hpp"
 #include <sstream>
+#include <chrono>
 
 std::string getContentType(const std::string &file_path) {
 	size_t dot_pos = file_path.find_last_of('.');
@@ -84,6 +85,12 @@ std::string HttpResponse::build(void) {
 std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations) {
 	request.print();
 
+	// hard coded max body size
+	const ssize_t client_max_body_size = 1 << 16;
+
+	if (client_max_body_size > request._body.size())
+		return errorResponse(413);
+
 	const LocationConfig *loc = routeMatching(request._path, locations);
 	int status = 200;
 	std::stringstream ss;
@@ -138,14 +145,32 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		return response.build();
 	}
 	else if (request._method == POST) {
+		if (!loc->uploadDir.empty()) {
+			size_t pos = request._path.find_last_of('/');
+			std::string filename = request._path.substr(pos + 1);
+
+			if (filename.empty()) {
+				auto now = std::chrono::system_clock::now();
+				auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+				filename = "upload_" + std::to_string(timestamp);
+			}
+
+			file_path = loc->uploadDir + "/" + filename;
+		}
 		status = post_method(file_path, request._body);
+
 		HttpResponse response(status);
 		response.setHeader("Content-Type", "application/json");
-		response.body = "{\"status\": \"success\"}";
+
+		// Extract filename from file_path to return to client
+		size_t pos = file_path.find_last_of('/');
+		std::string created_filename = (pos != std::string::npos) ? file_path.substr(pos + 1) : file_path;
+		response.body = "{\"status\": \"success\", \"filename\": \"" + created_filename + "\"}";
 		return response.build();
 	}
 	else if (request._method == DELETE) {
 		status = delete_method(file_path);
+
 		HttpResponse response(status);
 		response.setHeader("Content-Type", "application/json");
 		response.body = "{\"status\": \"deleted\"}";
