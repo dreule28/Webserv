@@ -85,19 +85,15 @@ std::string HttpResponse::build(void) {
 std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations) {
 	request.print();
 
-	// hard coded max body size
-	const ssize_t client_max_body_size = 1 << 16;
-	
 	const LocationConfig *loc = routeMatching(request._path, locations);
 	int status = 200;
 	std::stringstream ss;
 
-	// comment out when values are parsed
-	// if (loc.redir_code > 0) {
-	// 	HttpResponse response(loc.redir_code);
-	// 	response.setHeader("Location", loc.redir_target);
-	// 	return response.build();
-	// }
+	if (loc->redirectCode > 0) {
+		HttpResponse response(loc->redirectCode);
+		response.setHeader("Location", loc->redirectTarget);
+		return response.build();
+	}
 
 	if (checkMethod(request._method, loc) == false) {
 		return errorResponse(405);
@@ -149,7 +145,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		return response.build();
 	}
 	else if (request._method == POST) {
-		if (client_max_body_size < request._body.size())
+		if (loc->clientMaxBodySize < request._body.size())
 			return errorResponse(413);
 
 		if (!loc->uploadDir.empty()) {
