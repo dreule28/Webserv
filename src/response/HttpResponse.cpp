@@ -124,10 +124,16 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 
 	if (request._method == GET) {
 		HttpResponse response(200);
-		if (is_dir)
+		if (is_dir) {
+			// Check if auto_index is enabled before showing directory listing
+			if (!loc->auto_index) {
+				return errorResponse(403);  // Forbidden - directory listing disabled
+			}
 			response.setHeader("Content-Type", "text/html");
-		else
+		}
+		else {
 			response.setHeader("Content-Type", getContentType(file_path));
+		}
 		response.body = get_method(file_path, is_dir, request);
 		return response.build();
 	}
