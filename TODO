@@ -1,0 +1,5 @@
+- CGI stdin: pass POST body via stdin
+- QUERY_STRING: parse and pass URL parameters -> CGI
+- custom error pages: get the custom error pages from the config file and check if it should be used
+- add missing ENV vars to the CGI
+- change directory before calling execve in the child

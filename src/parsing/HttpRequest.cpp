@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <map>
 
 void HttpRequest::parseReqline(HttpRequest& req, const std::string& rawReq) {
 	std::stringstream ss(rawReq);
@@ -14,7 +15,7 @@ void HttpRequest::parseReqline(HttpRequest& req, const std::string& rawReq) {
 	req._method = (methodStr == "GET") ? GET
 				: (methodStr == "POST") ? POST
 				: (methodStr == "DELETE") ? DELETE
-				: UNKOWN;
+				: UNKNOWN;
 	req._target = targetStr;
 	req._version = versionStr;
 
@@ -50,7 +51,7 @@ void HttpRequest::parseHeaders(HttpRequest& req, const std::string& rawReq) {
 		while (!value.empty() && value[0] == ' ')
 			value.erase(0, 1);
 		std::transform(key.begin(), key.end(), key.begin(), ::tolower);
-		req._headers[key] = value;
+		req.headers[key] = value;
 	}
 }
 
@@ -82,10 +83,10 @@ void HttpRequest::parseBody(HttpRequest& req, const std::string& rawReq) {
 		return;
 	std::string body = rawReq.substr(bodyStart + 4);
 
-	if (req._headers.count("transfer-encoding") && req._headers["transfer-encoding"] == "chunked")
+	if (req.headers.count("transfer-encoding") && req.headers["transfer-encoding"] == "chunked")
 		parseChunked(req, body);
-	else if (req._headers.count("content-length")) {
-		req._contentLength = std::atoi(req._headers["content-length"].c_str());
+	else if (req.headers.count("content-length")) {
+		req._contentLength = std::strtol(req.headers["content-length"].c_str(), NULL, 10);
 		req._body = body.substr(0, req._contentLength);
 	}
 }
@@ -117,7 +118,7 @@ void HttpRequest::print() const {
 	std::cout << "Query: " << _query << std::endl;
 	std::cout << "Version: " << _version << std::endl;
 	std::cout << "Headers:" << std::endl;
-	for (std::map<std::string, std::string>::const_iterator it = _headers.begin(); it != _headers.end(); ++it)
+	for (std::unordered_map<std::string, std::string>::const_iterator it = headers.begin(); it != headers.end(); ++it)
 		std::cout << "  " << it->first << ": " << it->second << std::endl;
 	std::cout << "Body: " << _body << std::endl;
 	std::cout << "Content-Length: " << _contentLength << "\n" << std::endl;

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "Content-Type: text/html"
+echo ""
+echo "<!DOCTYPE html>"
+echo "<html>"
+echo "<head><title>Shell CGI Test</title></head>"
+echo "<body>"
+echo "<h1>Shell CGI Script Working!</h1>"
+echo "<h2>Environment Variables:</h2>"
+echo "<ul>"
+echo "<li>REQUEST_METHOD: $REQUEST_METHOD</li>"
+echo "<li>CONTENT_TYPE: $CONTENT_TYPE</li>"
+echo "<li>CONTENT_LENGTH: $CONTENT_LENGTH</li>"
+echo "<li>SCRIPT_FILENAME: $SCRIPT_FILENAME</li>"
+echo "</ul>"
+echo "</body>"
+echo "</html>"

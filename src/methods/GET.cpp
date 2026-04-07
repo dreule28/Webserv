@@ -9,9 +9,16 @@ std::string	get_method(const std::string &file_path, bool is_dir, const HttpRequ
 			<< "<html><body>\n"
 			<< "<h1>Directory: " << file_path << "</h1>\n";
 
-			for (const auto & entry : std::filesystem::directory_iterator(file_path))
-				ss << "<a href='" << request._path << "/" << entry.path().filename().string() << "'>"
-					<< request._path << "/" << entry.path().filename().string() << "</a><br>\n";
+		// Build base path for links, avoiding double slashes
+		std::string base_path = request._path;
+		if (base_path.empty() || base_path[base_path.length() - 1] != '/') {
+			base_path += "/";
+		}
+
+		for (const auto & entry : std::filesystem::directory_iterator(file_path)) {
+			std::string link = base_path + entry.path().filename().string();
+			ss << "<a href='" << link << "'>" << entry.path().filename().string() << "</a><br>\n";
+		}
 
 		ss << "</body></html>";
 

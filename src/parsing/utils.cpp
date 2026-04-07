@@ -29,5 +29,5 @@ Methods HttpRequest::stringToMethod(const std::string& methodStr) {
 		return POST;
 	if (methodStr == "DELETE")
 		return DELETE;
-	return UNKOWN;
+	return UNKNOWN;
 }

@@ -1,0 +1,1 @@
+/home/anakin/Desktop/curriculum/Webserv/test/cgi-bin/test.sh
