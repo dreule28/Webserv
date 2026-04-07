@@ -88,7 +88,7 @@ int	processCgi(HttpRequest &request, const std::string &script_path, HttpRespons
 	int status;
 	waitpid(pid, &status, 0);
 
-	if (status != 0)
+	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
 		return 500;
 
 	if (output.empty()) {
