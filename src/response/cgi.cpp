@@ -46,6 +46,7 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 			default: method_str = "UNKNOWN"; break;
 		}
 
+		env_strings.push_back("QUERY_STRING=" + request._query);
 		env_strings.push_back("REQUEST_METHOD=" + method_str);
 
 		std::unordered_map<std::string, std::string>::const_iterator ct_it = request.headers.find("Content-Type");
