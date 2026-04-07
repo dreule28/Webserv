@@ -85,23 +85,21 @@ std::string HttpResponse::build(void) {
 std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations) {
 	request.print();
 
-	// hard coded max body size
-	const ssize_t client_max_body_size = 1 << 16;
-	
 	const LocationConfig *loc = routeMatching(request._path, locations);
 	int status = 200;
 	std::stringstream ss;
 
-	// comment out when values are parsed
-	// if (loc.redir_code > 0) {
-	// 	HttpResponse response(loc.redir_code);
-	// 	response.setHeader("Location", loc.redir_target);
-	// 	return response.build();
-	// }
+	if (loc == NULL)
+		return errorResponse(404);
 
-	if (checkMethod(request._method, loc) == false) {
-		return errorResponse(405);
+	if (loc->redirectCode > 0) {
+		HttpResponse response(loc->redirectCode);
+		response.setHeader("Location", loc->redirectTarget);
+		return response.build();
 	}
+
+	if (checkMethod(request._method, loc) == false)
+		return errorResponse(405);
 
 	bool is_dir = false;
 	std::string file_path(buildRealPath(loc, request._path, is_dir));
@@ -114,13 +112,10 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 			if (extension == loc->cgiExtensions) {
 				HttpResponse cgi_response(200);
 				HttpRequest &mutable_request = const_cast<HttpRequest&>(request);
-				status = processCgi(mutable_request, file_path, cgi_response);
+				status = processCgi(mutable_request, file_path, loc->cgiPath, cgi_response);
 
-				if (status == 200) {
-					cgi_response.status = status;
-					cgi_response.setHeader("Content-Type", "text/html");
+				if (status == 200)
 					return cgi_response.build();
-				}
 				return errorResponse(status);
 			}
 		}
@@ -128,28 +123,25 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 
 	if (request._method == GET || request._method == DELETE) {
 		status = checkFile(file_path, request._method);
-		if (status != 200) {
+		if (status != 200)
 				return errorResponse(status);
-		}
 	}
 
 	if (request._method == GET) {
 		HttpResponse response(200);
 		if (is_dir) {
 			// Check if auto_index is enabled before showing directory listing
-			if (!loc->auto_index) {
+			if (!loc->auto_index)
 				return errorResponse(403);  // Forbidden - directory listing disabled
-			}
 			response.setHeader("Content-Type", "text/html");
 		}
-		else {
+		else
 			response.setHeader("Content-Type", getContentType(file_path));
-		}
 		response.body = get_method(file_path, is_dir, request);
 		return response.build();
 	}
 	else if (request._method == POST) {
-		if (client_max_body_size < request._body.size())
+		if (loc->clientMaxBodySize < request._body.size())
 			return errorResponse(413);
 
 		if (!loc->uploadDir.empty()) {
