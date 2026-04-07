@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -12,7 +12,7 @@ typedef enum {
 	GET,
 	POST,
 	DELETE,
-	UNKOWN = -1
+	UNKNOWN = -1
 } Methods;
 
 class HttpRequest {
@@ -24,7 +24,7 @@ class HttpRequest {
 	std::string _query;
 	std::string _version;
 
-	std::map<std::string, std::string> _headers;
+	std::unordered_map<std::string, std::string> headers;
 
 	std::string _body;
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGI Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-link {
+            display: block;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .test-link:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>CGI Testing Page</h1>
+    <p>Click the links below to test CGI scripts:</p>
+
+    <a href="/cgi-bin/hello.py" class="test-link">Test Python CGI Script</a>
+
+    <h2>Instructions:</h2>
+    <ol>
+        <li>Start the server with: <code>./webserv configs/cgi-test.conf</code></li>
+        <li>Open this page in your browser at: <code>http://localhost:8080/cgi-test.html</code></li>
+        <li>Click on the test links above to execute CGI scripts</li>
+    </ol>
+</body>
+</html>

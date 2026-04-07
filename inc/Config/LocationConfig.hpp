@@ -17,7 +17,12 @@ class LocationConfig {
 
 		std::string	index;
 		bool		auto_index;
+		size_t		clientMaxBodySize;
+
+		int			returnCode;
+		int			redirectCode;
+		std::string	redirectTarget;
 
 		std::string uploadDir;
-		LocationConfig() : cgiEnabled(false) {}
+		LocationConfig() : cgiEnabled(false), auto_index(false), clientMaxBodySize(1000000), returnCode(0), redirectCode(0) {}
 };

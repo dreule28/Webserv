@@ -9,6 +9,9 @@ class ServerConfig {
 		std::string host;
 		std::string index;
 		std::string root;
+		bool auto_index;
+		size_t clientMaxBodySize;
 
 		std::vector<LocationConfig> locations;
+		ServerConfig() : port(0), auto_index(false), clientMaxBodySize(1000000) {}
 };
