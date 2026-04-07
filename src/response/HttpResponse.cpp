@@ -98,9 +98,8 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		return response.build();
 	}
 
-	if (checkMethod(request._method, loc) == false) {
+	if (checkMethod(request._method, loc) == false)
 		return errorResponse(405);
-	}
 
 	bool is_dir = false;
 	std::string file_path(buildRealPath(loc, request._path, is_dir));
@@ -115,11 +114,8 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 				HttpRequest &mutable_request = const_cast<HttpRequest&>(request);
 				status = processCgi(mutable_request, file_path, loc->cgiPath, cgi_response);
 
-				if (status == 200) {
-					cgi_response.status = status;
-					cgi_response.setHeader("Content-Type", "text/html");
+				if (status == 200)
 					return cgi_response.build();
-				}
 				return errorResponse(status);
 			}
 		}
@@ -127,23 +123,20 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 
 	if (request._method == GET || request._method == DELETE) {
 		status = checkFile(file_path, request._method);
-		if (status != 200) {
+		if (status != 200)
 				return errorResponse(status);
-		}
 	}
 
 	if (request._method == GET) {
 		HttpResponse response(200);
 		if (is_dir) {
 			// Check if auto_index is enabled before showing directory listing
-			if (!loc->auto_index) {
+			if (!loc->auto_index)
 				return errorResponse(403);  // Forbidden - directory listing disabled
-			}
 			response.setHeader("Content-Type", "text/html");
 		}
-		else {
+		else
 			response.setHeader("Content-Type", getContentType(file_path));
-		}
 		response.body = get_method(file_path, is_dir, request);
 		return response.build();
 	}

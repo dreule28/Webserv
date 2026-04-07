@@ -2,6 +2,7 @@
 #include "HttpResponse.hpp"
 #include <vector>
 #include <string>
+#include <sstream>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <fcntl.h>
@@ -91,11 +92,47 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 	if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
 		return 500;
 
-	if (output.empty()) {
+	if (output.empty())
 		return 500;
-	}
 
-	response.body = output;
+
+	// Split CGI output into headers and body at the blank line
+	size_t sep_pos = output.find("\r\n\r\n");
+	if (sep_pos == std::string::npos)
+		sep_pos = output.find("\n\n");
+	if (sep_pos == std::string::npos)
+		return 500;
+
+
+	std::string cgi_headers = output.substr(0, sep_pos);
+	response.body = output.substr(sep_pos + 4);
+
+	// Parse CGI headers line by line
+	std::istringstream header_stream(cgi_headers);
+	std::string line;
+
+	while (std::getline(header_stream, line)) {
+		if (!line.empty() && line[line.size() - 1] == '\r')
+			line.erase(line.size() - 1);
+
+		size_t colon = line.find(':');
+		if (colon == std::string::npos)
+			continue;
+
+		std::string key = line.substr(0, colon);
+		std::string value = line.substr(colon + 1);
+
+		// Trim leading space from value
+		size_t start = value.find_first_not_of(' ');
+		if (start != std::string::npos)
+			value = value.substr(start);
+
+		// Status header sets the HTTP response code
+		if (key == "Status")
+			std::istringstream(value) >> response.status;
+		else
+			response.setHeader(key, value);
+	}
 
 	return 200;
 }
