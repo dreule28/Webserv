@@ -7,19 +7,32 @@
 #include <fcntl.h>
 
 int	processCgi(HttpRequest &request, const std::string &script_path, HttpResponse &response) {
-	int	fds[2];
-	if (pipe(fds) == -1)
+	int	stdout_fds[2];
+	int	stdin_fds[2];
+
+	if (pipe(stdout_fds) == -1)
 		return 500;
+	if (pipe(stdin_fds) == -1)
+		return close(stdout_fds[0]), close(stdout_fds[1]), 500;
 
 	pid_t pid = fork();
-	if (pid == -1)
+	if (pid == -1) {
+		close(stdout_fds[0]);
+		close(stdout_fds[1]);
+		close(stdin_fds[0]);
+		close(stdin_fds[1]);
 		return 500;
+	}
 
 	if (pid == 0) {
-		close(fds[0]);
-		dup2(fds[1], STDOUT_FILENO);
-		dup2(fds[1], STDERR_FILENO);
-		close(fds[1]);
+		close(stdout_fds[0]);
+		dup2(stdout_fds[1], STDOUT_FILENO);
+		dup2(stdout_fds[1], STDERR_FILENO);
+		close(stdout_fds[1]);
+
+		close(stdin_fds[1]);
+		dup2(stdin_fds[0], STDIN_FILENO);
+		close(stdin_fds[0]);
 
 		std::vector<std::string> env_strings;
 
@@ -56,13 +69,21 @@ int	processCgi(HttpRequest &request, const std::string &script_path, HttpRespons
 		exit(1);
 	}
 
-	close(fds[1]);
+	close(stdout_fds[1]);
+	close(stdin_fds[0]);
+
+	// Write POST body to child's stdin
+	if (!request._body.empty()) {
+		write(stdin_fds[1], request._body.c_str(), request._body.size());
+	}
+	close(stdin_fds[1]);
+
 	std::string output;
 	char	buf[1024];
 	ssize_t	bytes;
-	while ((bytes = read(fds[0], buf, sizeof(buf))) > 0)
+	while ((bytes = read(stdout_fds[0], buf, sizeof(buf))) > 0)
 		output += std::string(buf, bytes);
-	close(fds[0]);
+	close(stdout_fds[0]);
 
 	int status;
 	waitpid(pid, &status, 0);
