@@ -62,6 +62,9 @@ static size_t parseBodySize(const std::string& sizeStr, std::size_t line) {
 }
 
 Config ConfigParser::parse(const std::string& filename) {
+	if (filename.size() < 5 || filename.substr(filename.size() - 5) != ".conf")
+		throw std::runtime_error("Invalid config file: " + filename + " (must end with .conf)");
+
 	std::ifstream file(filename);
 	if (!file.is_open())
 		throw std::runtime_error("Cannot open config: " + filename);
