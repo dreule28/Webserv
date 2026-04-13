@@ -82,7 +82,7 @@ std::string HttpResponse::build(void) {
 	return ss.str();
 }
 
-std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations) {
+std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations, Connection &conn) {
 	request.print();
 
 	const LocationConfig *loc = routeMatching(request._path, locations);
@@ -110,13 +110,15 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		if (dot_pos != std::string::npos) {
 			std::string extension = file_path.substr(dot_pos);
 			if (extension == loc->cgiExtensions) {
-				HttpResponse cgi_response(200);
 				HttpRequest &mutable_request = const_cast<HttpRequest&>(request);
-				status = processCgi(mutable_request, file_path, loc->cgiPath, cgi_response);
+				status = processCgi(mutable_request, file_path, loc->cgiPath, conn);
 
-				if (status == 200)
-					return cgi_response.build();
-				return errorResponse(status);
+				if (status != 0)
+					return errorResponse(status);
+
+				// CGI started successfully, return empty string to indicate async processing
+				// The event loop will handle reading CGI output
+				return "";
 			}
 		}
 	}
