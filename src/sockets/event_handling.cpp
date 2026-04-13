@@ -65,15 +65,19 @@ void handle_pollin_request(Connection &con)
 			std::string body = con._read_buffer.substr(delimiter_pos + 4);
 			if(con._fullReq._contentLength == sizeof(body))
 			{
-				con._write_buffer = response(con._fullReq, con._serverConfig.locations);
-				con._poll_fd.events = POLLOUT;
+				con._write_buffer = response(con._fullReq, con._serverConfig.locations, con);
+				if (con._cgi_state != CGI_RUNNING)
+					con._poll_fd.events = POLLOUT;
+				// If CGI is running, poll events will be set by event loop
 				return;
 			}
 			con._fullReq._body = body;
 		}
-		
-		con._write_buffer = response(con._fullReq, con._serverConfig.locations);
-		con._poll_fd.events = POLLOUT;
+
+		con._write_buffer = response(con._fullReq, con._serverConfig.locations, con);
+		if (con._cgi_state != CGI_RUNNING)
+			con._poll_fd.events = POLLOUT;
+		// If CGI is running, poll events will be set by event loop
 	}
 }
 
