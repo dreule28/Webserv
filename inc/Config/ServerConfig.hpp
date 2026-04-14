@@ -11,6 +11,7 @@ class ServerConfig {
 		std::string root;
 		bool auto_index;
 		size_t clientMaxBodySize;
+		std::map<int, std::string> errorPages;
 
 		std::vector<LocationConfig> locations;
 		ServerConfig() : port(0), auto_index(false), clientMaxBodySize(1000000) {}

@@ -139,6 +139,13 @@ void ConfigParser::parseServer(std::stringstream& ss, Config& config, std::size_
 			requireSingleTrailingSemicolon(token, line, "client_max_body_size");
 			server.clientMaxBodySize = parseBodySize(stripSemicolon(token), line);
 		}
+		else if (token == "error_page") {
+			std::string codeStr = nextToken(ss, line);
+			int code = std::stoi(codeStr);
+			token = nextToken(ss, line);
+			requireSingleTrailingSemicolon(token, line, "error_page");
+			server.errorPages[code] = stripSemicolon(token);
+		}
 		else if (token == "location") {
 			std::string path = nextToken(ss, line);
 			std::size_t locationLine = line;
