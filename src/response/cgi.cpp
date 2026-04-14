@@ -12,6 +12,7 @@
 // Start CGI process in non-blocking mode
 // Returns: 0 if CGI started successfully, error code otherwise
 int	processCgi(HttpRequest &request, const std::string &script_path, const std::string &cgi_path, Connection &conn) {
+	std::cout << YELLOW << "CGI Debug: script_path=" << script_path << ", cgi_path=" << cgi_path << RESET << std::endl;
 	int	stdout_fds[2];
 	int	stdin_fds[2];
 
@@ -68,11 +69,15 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 		env_ptr.push_back(nullptr);
 
 		std::string script_dir = script_path.substr(0, script_path.find_last_of('/'));
-		if (chdir(script_dir.c_str()) == -1)
+		std::string script_name = script_path.substr(script_path.find_last_of('/') + 1);
+		if (chdir(script_dir.c_str()) == -1) {
+			std::cerr << "chdir failed: " << strerror(errno) << " (dir: " << script_dir << ")" << std::endl;
 			exit(1);
+		}
 
-		const char *argv[] = {cgi_path.c_str(), script_path.c_str(), nullptr};
+		const char *argv[] = {cgi_path.c_str(), script_name.c_str(), nullptr};
 		execve(cgi_path.c_str(), (char* const*)argv, env_ptr.data());
+		std::cerr << "execve failed: " << strerror(errno) << " (cgi_path: " << cgi_path << ", script: " << script_name << ")" << std::endl;
 		exit(1);
 	}
 
