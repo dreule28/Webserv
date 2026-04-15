@@ -3,40 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CGI Test Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-        }
-        .test-link {
-            display: block;
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .test-link:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>CGI — Webserv</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>CGI Testing Page</h1>
-    <p>Click the links below to test CGI scripts:</p>
+    <div class="page-wrapper">
+        <nav>
+            <a href="/" class="logo">Webserv<span>v1.0</span></a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="form.html">Forms</a></li>
+            </ul>
+        </nav>
 
-    <a href="/cgi-bin/hello.py" class="test-link">Test Python CGI Script</a>
+        <div class="fade-up">
+            <h1>CGI Execution</h1>
+            <p class="subtitle">Execute server-side scripts through the Common Gateway Interface.</p>
+        </div>
 
-    <h2>Instructions:</h2>
-    <ol>
-        <li>Start the server with: <code>./webserv configs/cgi-test.conf</code></li>
-        <li>Open this page in your browser at: <code>http://localhost:8080/cgi-test.html</code></li>
-        <li>Click on the test links above to execute CGI scripts</li>
-    </ol>
+        <div class="card fade-up">
+            <h3>Run CGI Script</h3>
+            <div class="accent-line"></div>
+            <div class="form-group">
+                <label for="cgiPath">Script Path</label>
+                <div style="display: flex; gap: 12px;">
+                    <input type="text" id="cgiPath" value="/cgi-bin/hello.py" style="flex: 1;">
+                    <button class="btn btn-primary" onclick="runCGI()">Execute</button>
+                </div>
+            </div>
+            <div class="response-box" id="cgiResponse">—</div>
+        </div>
+
+        <div class="card fade-up">
+            <h3>Available Scripts</h3>
+            <div class="accent-line"></div>
+            <a href="#" class="card-link" onclick="setCGI('/cgi-bin/hello.py'); return false;">
+                <span>hello.py — Python Hello World</span>
+                <span class="badge badge-method">.py</span>
+            </a>
+            <a href="#" class="card-link" onclick="setCGI('/cgi-bin/test.sh'); return false;">
+                <span>test.sh — Shell Script Test</span>
+                <span class="badge badge-method">.sh</span>
+            </a>
+        </div>
+
+        <footer>
+            <p>Built with precision &mdash; <span class="gold">Webserv</span> &copy; 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        function setCGI(path) {
+            document.getElementById('cgiPath').value = path;
+            runCGI();
+        }
+
+        function runCGI() {
+            const path = document.getElementById('cgiPath').value;
+            const box = document.getElementById('cgiResponse');
+            if (!path) return;
+            box.textContent = 'Executing...';
+            fetch(path)
+                .then(r => r.text().then(t => {
+                    box.textContent = `HTTP ${r.status} ${r.statusText}\n\n${t}`;
+                }))
+                .catch(err => {
+                    box.textContent = 'Error: ' + err.message;
+                });
+        }
+    </script>
 </body>
 </html>

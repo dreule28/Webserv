@@ -3,54 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact - Webserv Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-    </style>
+    <title>Contact — Webserv</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="card">
-        <h1>Contact Information</h1>
-        <table>
-            <tr>
-                <td><strong>Email:</strong></td>
-                <td>test@webserv.local</td>
-            </tr>
-            <tr>
-                <td><strong>GitHub:</strong></td>
-                <td>github.com/webserv</td>
-            </tr>
-            <tr>
-                <td><strong>Server:</strong></td>
-                <td>localhost:8080</td>
-            </tr>
-        </table>
-        <p style="margin-top: 20px;"><a href="index.html">Back to Home</a></p>
+    <div class="page-wrapper">
+        <nav>
+            <a href="/" class="logo">Webserv<span>v1.0</span></a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html" class="active">Contact</a></li>
+                <li><a href="form.html">Forms</a></li>
+            </ul>
+        </nav>
+
+        <div class="fade-up">
+            <h1>Get in Touch</h1>
+            <p class="subtitle">Test the POST method by submitting a message or uploading a file to the server.</p>
+        </div>
+
+        <div class="card fade-up">
+            <h3>Send a Message</h3>
+            <div class="accent-line"></div>
+            <form method="POST" action="/upload" enctype="multipart/form-data" id="contactForm">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Write your message here..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="file">Attachment</label>
+                    <input type="file" id="file" name="file">
+                </div>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+        </div>
+
+        <div class="card fade-up">
+            <h3>Server Response</h3>
+            <div class="accent-line"></div>
+            <div class="response-box" id="response">Awaiting submission...</div>
+        </div>
+
+        <footer>
+            <p>Built with precision &mdash; <span class="gold">Webserv</span> &copy; 2025</p>
+        </footer>
     </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = new FormData(form);
+            const box = document.getElementById('response');
+            box.textContent = 'Sending...';
+
+            fetch(form.action, { method: 'POST', body: data })
+                .then(r => r.text().then(t => ({ status: r.status, statusText: r.statusText, body: t })))
+                .then(res => {
+                    box.textContent = `HTTP ${res.status} ${res.statusText}\n\n${res.body}`;
+                })
+                .catch(err => {
+                    box.textContent = `Error: ${err.message}`;
+                });
+        });
+    </script>
 </body>
 </html>

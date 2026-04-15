@@ -55,7 +55,7 @@ TEST_SRC := src/response/test.cpp \
 OBJS := $(addprefix $(OBJ_DIR)/, $(SRC:%.cpp=%.o))
 
 # Compilation flags and linking options
-CFLAGS := -Wall -Wextra -Wno-shadow -std=c++17 $(addprefix -I, $(INC_DIRS))
+CFLAGS := -Wall -Wextra -Werror -Wno-shadow -std=c++17 $(addprefix -I, $(INC_DIRS)) 
 
 # Color definitions for better terminal output
 COLOR_RESET = \033[0m

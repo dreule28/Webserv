@@ -3,34 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - Webserv Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-    </style>
+    <title>About — Webserv</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="card">
-        <h1>About Webserv</h1>
-        <p>Webserv is a HTTP server implementation written in C++.</p>
-        <p>This page is used to test basic page navigation and HTML rendering.</p>
-        <p><a href="index.html">Back to Home</a></p>
+    <div class="page-wrapper">
+        <nav>
+            <a href="/" class="logo">Webserv<span>v1.0</span></a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="about.html" class="active">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="form.html">Forms</a></li>
+            </ul>
+        </nav>
+
+        <div class="fade-up">
+            <h1>About Webserv</h1>
+            <p class="subtitle">A fully compliant HTTP/1.1 server written in C++, handling concurrent connections with non-blocking I/O.</p>
+        </div>
+
+        <div class="card fade-up">
+            <h3>Architecture</h3>
+            <div class="accent-line"></div>
+            <p>Webserv uses <strong>poll()</strong> for multiplexed, non-blocking I/O. Each connection is managed through a state machine that handles request parsing, routing, response generation, and CGI execution.</p>
+            <p>Configuration follows an Nginx-like syntax with server blocks, location matching, and per-route method restrictions.</p>
+        </div>
+
+        <div class="grid fade-up">
+            <div class="card">
+                <h3>Static Serving</h3>
+                <div class="accent-line"></div>
+                <p>Serves files with correct MIME types. Supports directory indexing, custom index files, and comprehensive media type detection.</p>
+            </div>
+            <div class="card">
+                <h3>CGI Support</h3>
+                <div class="accent-line"></div>
+                <p>Executes scripts via fork/pipe with non-blocking I/O. Supports Python, Perl, and shell interpreters with proper environment variable passing.</p>
+            </div>
+            <div class="card">
+                <h3>File Uploads</h3>
+                <div class="accent-line"></div>
+                <p>Handles POST requests with both Content-Length and chunked Transfer-Encoding. Configurable upload directories per location.</p>
+            </div>
+            <div class="card">
+                <h3>Error Handling</h3>
+                <div class="accent-line"></div>
+                <p>Custom error pages per server block. Proper HTTP status codes for all error conditions including 400, 403, 404, 405, and 500.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with precision &mdash; <span class="gold">Webserv</span> &copy; 2025</p>
+        </footer>
     </div>
 </body>
 </html>

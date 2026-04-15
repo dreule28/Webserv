@@ -3,53 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Test - Webserv</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .placeholder-img {
-            width: 300px;
-            height: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 18px;
-            border-radius: 8px;
-            margin: 10px 0;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-    </style>
+    <title>Images — Webserv</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="card">
-        <h1>Image and Media Test</h1>
-        <p>This page tests serving static images and CSS.</p>
+    <div class="page-wrapper">
+        <nav>
+            <a href="/" class="logo">Webserv<span>v1.0</span></a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="form.html">Forms</a></li>
+            </ul>
+        </nav>
 
-        <h3>Placeholder Image</h3>
-        <div class="placeholder-img">
-            Image Placeholder
+        <div class="fade-up">
+            <h1>Image Serving</h1>
+            <p class="subtitle">Testing MIME type detection and binary file serving. Place images in the server root to see them rendered.</p>
         </div>
 
-        <p><em>Note: You can add actual image files (PNG, JPG, GIF) to the test directory to test image serving.</em></p>
+        <div class="card fade-up">
+            <h3>Supported Formats</h3>
+            <div class="accent-line"></div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <span class="badge badge-method">.jpg</span>
+                <span class="badge badge-method">.png</span>
+                <span class="badge badge-method">.gif</span>
+                <span class="badge badge-method">.svg</span>
+                <span class="badge badge-method">.webp</span>
+                <span class="badge badge-method">.ico</span>
+                <span class="badge badge-method">.bmp</span>
+            </div>
+        </div>
 
-        <p style="margin-top: 20px;"><a href="index.html">Back to Home</a></p>
+        <div class="card fade-up">
+            <h3>Test Image Load</h3>
+            <div class="accent-line"></div>
+            <div class="form-group">
+                <label for="imgPath">Image Path</label>
+                <div style="display: flex; gap: 12px;">
+                    <input type="text" id="imgPath" placeholder="/images/photo.jpg" style="flex: 1;">
+                    <button class="btn btn-outline" onclick="loadImage()">Load</button>
+                </div>
+            </div>
+            <div id="imageContainer" style="margin-top: 16px; text-align: center; min-height: 100px; display: flex; align-items: center; justify-content: center; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border); padding: 24px;">
+                <p style="color: var(--text-muted);">Enter an image path and click Load</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>Built with precision &mdash; <span class="gold">Webserv</span> &copy; 2025</p>
+        </footer>
     </div>
+
+    <script>
+        function loadImage() {
+            const path = document.getElementById('imgPath').value;
+            const container = document.getElementById('imageContainer');
+            if (!path) return;
+            container.innerHTML = '<p style="color: var(--text-muted);">Loading...</p>';
+            const img = new Image();
+            img.onload = function() {
+                container.innerHTML = '';
+                img.style.maxWidth = '100%';
+                img.style.borderRadius = '8px';
+                container.appendChild(img);
+            };
+            img.onerror = function() {
+                container.innerHTML = '<p style="color: #e74c5e;">Failed to load image at ' + path + '</p>';
+            };
+            img.src = path;
+        }
+    </script>
 </body>
 </html>

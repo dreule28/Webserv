@@ -3,73 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Test - Webserv</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        input, textarea, select {
-            width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-    </style>
+    <title>Forms — Webserv</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="card">
-        <h1>Form Test Page</h1>
-        <p>Test POST and GET requests with this form.</p>
+    <div class="page-wrapper">
+        <nav>
+            <a href="/" class="logo">Webserv<span>v1.0</span></a>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="form.html" class="active">Forms</a></li>
+            </ul>
+        </nav>
 
-        <h3>GET Form</h3>
-        <form method="GET" action="index.html">
-            <label>Name:</label>
-            <input type="text" name="name" placeholder="Your name">
-            <label>Email:</label>
-            <input type="email" name="email" placeholder="your@email.com">
-            <button type="submit">Submit (GET)</button>
-        </form>
+        <div class="fade-up">
+            <h1>HTTP Method Testing</h1>
+            <p class="subtitle">Test all supported HTTP methods. Each section sends a real request and displays the raw response.</p>
+        </div>
 
-        <h3>POST Form</h3>
-        <form method="POST" action="/">
-            <label>Message:</label>
-            <textarea name="message" rows="4" placeholder="Enter your message"></textarea>
-            <label>Category:</label>
-            <select name="category">
-                <option value="general">General</option>
-                <option value="bug">Bug Report</option>
-                <option value="feature">Feature Request</option>
-            </select>
-            <button type="submit">Submit (POST)</button>
-        </form>
+        <!-- GET Test -->
+        <div class="card fade-up">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span class="badge badge-method">GET</span>
+                <h3 style="margin: 0;">Query Parameters</h3>
+            </div>
+            <div class="accent-line"></div>
+            <form id="getForm">
+                <div class="grid">
+                    <div class="form-group">
+                        <label for="search">Search Query</label>
+                        <input type="text" id="search" name="q" placeholder="webserv">
+                    </div>
+                    <div class="form-group">
+                        <label for="lang">Language</label>
+                        <input type="text" id="lang" name="lang" placeholder="en">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-outline">Send GET</button>
+            </form>
+            <div class="response-box" id="getResponse">—</div>
+        </div>
 
-        <p style="margin-top: 20px;"><a href="index.html">Back to Home</a></p>
+        <!-- POST Test -->
+        <div class="card fade-up">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span class="badge badge-method">POST</span>
+                <h3 style="margin: 0;">File Upload</h3>
+            </div>
+            <div class="accent-line"></div>
+            <form id="postForm">
+                <div class="form-group">
+                    <label for="postFile">Choose File</label>
+                    <input type="file" id="postFile" name="file">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+            <div class="response-box" id="postResponse">—</div>
+        </div>
+
+        <!-- DELETE Test -->
+        <div class="card fade-up">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span class="badge badge-method">DELETE</span>
+                <h3 style="margin: 0;">Delete Resource</h3>
+            </div>
+            <div class="accent-line"></div>
+            <form id="deleteForm">
+                <div class="form-group">
+                    <label for="deletePath">Resource Path</label>
+                    <input type="text" id="deletePath" placeholder="/uploads/example.txt">
+                </div>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+            <div class="response-box" id="deleteResponse">—</div>
+        </div>
+
+        <footer>
+            <p>Built with precision &mdash; <span class="gold">Webserv</span> &copy; 2025</p>
+        </footer>
     </div>
+
+    <script>
+        function showResponse(id, status, statusText, body) {
+            document.getElementById(id).textContent = `HTTP ${status} ${statusText}\n\n${body}`;
+        }
+
+        document.getElementById('getForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const q = document.getElementById('search').value || 'test';
+            const lang = document.getElementById('lang').value || 'en';
+            const url = `/api/?q=${encodeURIComponent(q)}&lang=${encodeURIComponent(lang)}`;
+            document.getElementById('getResponse').textContent = 'Loading...';
+            fetch(url)
+                .then(r => r.text().then(t => showResponse('getResponse', r.status, r.statusText, t)))
+                .catch(err => document.getElementById('getResponse').textContent = 'Error: ' + err.message);
+        });
+
+        document.getElementById('postForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const data = new FormData();
+            const file = document.getElementById('postFile').files[0];
+            if (file) data.append('file', file);
+            document.getElementById('postResponse').textContent = 'Uploading...';
+            fetch('/upload', { method: 'POST', body: data })
+                .then(r => r.text().then(t => showResponse('postResponse', r.status, r.statusText, t)))
+                .catch(err => document.getElementById('postResponse').textContent = 'Error: ' + err.message);
+        });
+
+        document.getElementById('deleteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const path = document.getElementById('deletePath').value || '/uploads/test.txt';
+            document.getElementById('deleteResponse').textContent = 'Deleting...';
+            fetch(path, { method: 'DELETE' })
+                .then(r => r.text().then(t => showResponse('deleteResponse', r.status, r.statusText, t)))
+                .catch(err => document.getElementById('deleteResponse').textContent = 'Error: ' + err.message);
+        });
+    </script>
 </body>
 </html>

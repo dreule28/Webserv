@@ -3,50 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webserv Test - Home</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            color: #333;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>Webserv</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Welcome to Webserv Test Suite</h1>
-    <div class="card">
-        <h2>Test Pages</h2>
-        <ul>
-            <li><a href="about.html">About Page</a></li>
-            <li><a href="contact.html">Contact Page</a></li>
-            <li><a href="image-test.html">Image Test Page</a></li>
-            <li><a href="form.html">Form Test Page</a></li>
-        </ul>
+    <div class="page-wrapper">
+        <nav>
+            <a href="/" class="logo">Webserv<span>v1.0</span></a>
+            <ul>
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="form.html">Forms</a></li>
+            </ul>
+        </nav>
+
+        <div class="fade-up">
+            <h1>Elegant HTTP, Crafted in C++</h1>
+            <p class="subtitle">A lightweight, high-performance web server built from scratch. Serving static files, handling uploads, and executing CGI &mdash; with precision.</p>
+        </div>
+
+        <div class="grid fade-up">
+            <div class="card">
+                <h3>Server Status</h3>
+                <div class="accent-line"></div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value"><span class="status-dot"></span> Running</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Time</span>
+                    <span class="info-value" id="time">—</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Protocol</span>
+                    <span class="info-value">HTTP/1.1</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Capabilities</h3>
+                <div class="accent-line"></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;">
+                    <span class="badge badge-method">GET</span>
+                    <span class="badge badge-method">POST</span>
+                    <span class="badge badge-method">DELETE</span>
+                    <span class="badge badge-success"><span class="status-dot"></span> CGI</span>
+                </div>
+                <p style="margin-top: 16px; font-size: 0.9rem;">Static files, uploads, CGI scripts, custom error pages, and redirects.</p>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 20px;">Explore</h2>
+        <div class="accent-line"></div>
+
+        <a href="about.html" class="card-link">
+            <span>About this server</span>
+            <span class="arrow">&rarr;</span>
+        </a>
+        <a href="contact.html" class="card-link">
+            <span>Contact &amp; Upload</span>
+            <span class="arrow">&rarr;</span>
+        </a>
+        <a href="form.html" class="card-link">
+            <span>Form testing</span>
+            <span class="arrow">&rarr;</span>
+        </a>
+        <a href="image-test.html" class="card-link">
+            <span>Image serving test</span>
+            <span class="arrow">&rarr;</span>
+        </a>
+        <a href="cgi-test.html" class="card-link">
+            <span>CGI execution test</span>
+            <span class="arrow">&rarr;</span>
+        </a>
+        <a href="api/" class="card-link">
+            <span>API endpoints</span>
+            <span class="arrow">&rarr;</span>
+        </a>
+
+        <footer>
+            <p>Built with precision &mdash; <span class="gold">Webserv</span> &copy; 2025</p>
+        </footer>
     </div>
-    <div class="card">
-        <h2>Server Information</h2>
-        <p>This is a test page for the Webserv HTTP server.</p>
-        <p>Current time: <span id="time"></span></p>
-    </div>
+
     <script>
         document.getElementById('time').textContent = new Date().toLocaleString();
     </script>
