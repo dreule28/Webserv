@@ -5,8 +5,10 @@
 #include <fstream>
 #include "status.hpp"
 
-std::string	errorResponse(const int error_code) {
+std::string	errorResponse(const int error_code, const std::string msg) {
 	HttpResponse response(error_code);
+
+	std::cerr << RED << msg << RESET << std::endl;
 
 	// std::cout << RED << "METHOD NOT ALLOWED" << RESET << std::endl;
 

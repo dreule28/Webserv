@@ -82,7 +82,7 @@ std::string buildRealPath(const LocationConfig *loc, const std::string &request_
 int	checkFile(std::string file_path, Methods method);
 std::string response(const HttpRequest &request, const std::vector<LocationConfig> &locations, Connection &conn);
 
-std::string	errorResponse(const int error_code);
+std::string	errorResponse(const int error_code, const std::string msg);
 std::string getContentType(const std::string &file_path);
 
 int processCgi(HttpRequest &request, const std::string &script_path, const std::string &cgi_path, Connection &conn);

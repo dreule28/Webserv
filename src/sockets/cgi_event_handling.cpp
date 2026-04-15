@@ -27,7 +27,7 @@ void handle_cgi_stdout(Connection &con) {
 		// Check if process exited successfully
 		if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
 			con._cgi_state = CGI_ERROR;
-			con._write_buffer = errorResponse(500);
+			con._write_buffer = errorResponse(500, "CGI process exited with error");
 		} else {
 			// Parse CGI output and build response
 			HttpResponse cgi_response(200);
@@ -37,7 +37,7 @@ void handle_cgi_stdout(Connection &con) {
 				con._cgi_state = CGI_DONE;
 			} else {
 				con._cgi_state = CGI_ERROR;
-				con._write_buffer = errorResponse(result);
+				con._write_buffer = errorResponse(result, "CGI response finalization failed");
 			}
 		}
 
@@ -54,7 +54,7 @@ void handle_cgi_stdout(Connection &con) {
 			close(con._cgi_stdout_fd);
 			con._cgi_stdout_fd = -1;
 			con._cgi_state = CGI_ERROR;
-			con._write_buffer = errorResponse(500);
+			con._write_buffer = errorResponse(500, "CGI stdout read error: " + std::string(strerror(errno)));
 			con._poll_fd.events = POLLOUT;
 
 			// Kill CGI process
@@ -106,7 +106,7 @@ void handle_cgi_stdin(Connection &con) {
 				con._cgi_stdout_fd = -1;
 			}
 
-			con._write_buffer = errorResponse(500);
+			con._write_buffer = errorResponse(500, "CGI stdin write error: " + std::string(strerror(errno)));
 			con._poll_fd.events = POLLOUT;
 		}
 	}
@@ -136,7 +136,7 @@ void check_cgi_timeout(Connection &con) {
 		}
 
 		con._cgi_state = CGI_ERROR;
-		con._write_buffer = errorResponse(504);  // Gateway Timeout
+		con._write_buffer = errorResponse(504, "CGI timeout for PID: " + std::to_string(con._cgi_pid));
 		con._poll_fd.events = POLLOUT;
 	}
 }

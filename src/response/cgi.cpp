@@ -1,6 +1,7 @@
 #include "Config/HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "socket/Connection_class.hpp"
+#include "color.hpp"
 #include <vector>
 #include <string>
 #include <sstream>
@@ -8,6 +9,8 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <ctime>
+#include <cerrno>
+#include <cstring>
 
 // Start CGI process in non-blocking mode
 // Returns: 0 if CGI started successfully, error code otherwise
@@ -16,10 +19,14 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 	int	stdout_fds[2];
 	int	stdin_fds[2];
 
-	if (pipe(stdout_fds) == -1)
+	if (pipe(stdout_fds) == -1) {
+		std::cerr << RED << "CGI 500: stdout pipe failed: " << strerror(errno) << RESET << std::endl;
 		return 500;
-	if (pipe(stdin_fds) == -1)
+	}
+	if (pipe(stdin_fds) == -1) {
+		std::cerr << RED << "CGI 500: stdin pipe failed: " << strerror(errno) << RESET << std::endl;
 		return close(stdout_fds[0]), close(stdout_fds[1]), 500;
+	}
 
 	pid_t pid = fork();
 	if (pid == -1) {
@@ -27,6 +34,7 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 		close(stdout_fds[1]);
 		close(stdin_fds[0]);
 		close(stdin_fds[1]);
+		std::cerr << RED << "CGI 500: fork failed: " << strerror(errno) << RESET << std::endl;
 		return 500;
 	}
 
@@ -110,15 +118,19 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 // Parses CGI headers and body, populates response
 // Returns: HTTP status code
 int finalizeCgi(Connection &conn, HttpResponse &response) {
-	if (conn._cgi_output.empty())
+	if (conn._cgi_output.empty()) {
+		std::cerr << RED << "CGI 500: empty output from script: " << conn._cgi_script_path << RESET << std::endl;
 		return 500;
+	}
 
 	// Split CGI output into headers and body at the blank line
 	size_t sep_pos = conn._cgi_output.find("\r\n\r\n");
 	if (sep_pos == std::string::npos)
 		sep_pos = conn._cgi_output.find("\n\n");
-	if (sep_pos == std::string::npos)
+	if (sep_pos == std::string::npos) {
+		std::cerr << RED << "CGI 500: no header separator in output from: " << conn._cgi_script_path << RESET << std::endl;
 		return 500;
+	}
 
 	std::string cgi_headers = conn._cgi_output.substr(0, sep_pos);
 	response.body = conn._cgi_output.substr(sep_pos + 4);

@@ -93,7 +93,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 	std::stringstream ss;
 
 	if (loc == NULL)
-		return errorResponse(404);
+		return errorResponse(404, "No matching location for path: " + request._path);
 
 	if (loc->redirectCode > 0) {
 		HttpResponse response(loc->redirectCode);
@@ -102,7 +102,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 	}
 
 	if (checkMethod(request._method, loc) == false)
-		return errorResponse(405);
+		return errorResponse(405, "Method not allowed on path: " + request._path);
 
 	bool is_dir = false;
 	std::string file_path(buildRealPath(loc, request._path, is_dir));
@@ -117,7 +117,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 				status = processCgi(mutable_request, file_path, loc->cgiPath, conn);
 
 				if (status != 0)
-					return errorResponse(status);
+					return errorResponse(status, "CGI process failed for: " + file_path);
 
 				// CGI started successfully, return empty string to indicate async processing
 				// The event loop will handle reading CGI output
@@ -129,7 +129,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 	if (request._method == GET || request._method == DELETE) {
 		status = checkFile(file_path, request._method);
 		if (status != 200)
-				return errorResponse(status);
+				return errorResponse(status, "File check failed for: " + file_path);
 	}
 
 	if (request._method == GET) {
@@ -137,7 +137,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		if (is_dir) {
 			// Check if auto_index is enabled before showing directory listing
 			if (!loc->auto_index)
-				return errorResponse(403);  // Forbidden - directory listing disabled
+				return errorResponse(403, "Directory listing disabled for: " + file_path);
 			response.setHeader("Content-Type", "text/html");
 		}
 		else
@@ -147,7 +147,7 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 	}
 	else if (request._method == POST) {
 		if (loc->clientMaxBodySize < request._body.size())
-			return errorResponse(413);
+			return errorResponse(413, "Request body too large: " + std::to_string(request._body.size()) + " bytes");
 
 		if (!loc->uploadDir.empty()) {
 			size_t pos = request._path.find_last_of('/');
@@ -181,5 +181,5 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		return response.build();
 	}
 
-	return errorResponse(500);
+	return errorResponse(500, "Unhandled request method on path: " + request._path);
 }
