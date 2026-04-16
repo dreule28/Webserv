@@ -18,7 +18,7 @@ std::vector<Connection> setup_sockets(Config config)
         int socket_fd = create_socket_fds(std::to_string(srv.port));
         if (socket_fd == -1) {
             std::cout << RED << "socket_fd creation failed" << std::endl;
-            break;
+            continue;
         }
 
         Connection fd;
@@ -29,8 +29,8 @@ std::vector<Connection> setup_sockets(Config config)
         fd._serverConfig = srv;      // default
         fd._vhosts.push_back(srv);   // first vhost on this listener
 
-        listenerIndex[key] = con.size();
         con.push_back(fd);
+        listenerIndex[key] = con.size() - 1;
     }
     print_poll_fds(con);
     return con;
