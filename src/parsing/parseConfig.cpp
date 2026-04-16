@@ -61,6 +61,16 @@ static size_t parseBodySize(const std::string& sizeStr, std::size_t line) {
 	}
 }
 
+void ConfigParser::checkIfDup(Config& config) {
+	for (int i = 0; i < (int)config.servers.size(); i++) {
+		for (int j = i + 1; j < (int)config.servers.size(); j++) {
+			if (config.servers[i].host == config.servers[j].host &&
+				config.servers[i].port == config.servers[j].port)
+				throw std::runtime_error("Duplicate server: " + config.servers[i].host + ":" + std::to_string(config.servers[i].port));
+		}
+	}
+}
+
 Config ConfigParser::parse(const std::string& filename) {
 	if (filename.size() < 5 || filename.substr(filename.size() - 5) != ".conf")
 		throw std::runtime_error("Invalid config file: " + filename + " (must end with .conf)");
@@ -91,6 +101,7 @@ Config ConfigParser::parse(const std::string& filename) {
 			parseServer(ss, config, line);
 		}
 	}
+	checkIfDup(config);
 	return config;
 }
 
