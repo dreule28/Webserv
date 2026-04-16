@@ -50,7 +50,8 @@ void event_loop(std::vector<Connection> &con)
 			}
 		}
 
-		int ready = poll(poll_array.data(), poll_array.size(), -1);
+		// Use 1000ms timeout so CGI timeout checks run periodically
+		int ready = poll(poll_array.data(), poll_array.size(), 1000);
 		if (ready == -1)
 		{
 			std::cerr << RED << "poll error" << RESET << std::endl;

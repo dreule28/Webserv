@@ -3,16 +3,9 @@
 #include <filesystem>
 
 std::string buildRealPath(const LocationConfig *loc, const std::string &request_path, bool &is_dir) {
-	// Remove the location prefix from the request path
+	// Use full request path (don't strip location prefix)
+	// For /cgi-bin/hello.py with root ./test → ./test/cgi-bin/hello.py
 	std::string relative_path = request_path;
-	if (request_path.find(loc->path) == 0) {
-		relative_path = request_path.substr(loc->path.length());
-		// If stripping location leaves empty path, keep the location path
-		// This handles requests like /cgi-bin when location is /cgi-bin
-		if (relative_path.empty() || relative_path == "/") {
-			relative_path = loc->path;
-		}
-	}
 
 	// Combine root with the relative path
 	std::string full_path = loc->root;
