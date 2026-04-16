@@ -2,6 +2,31 @@
 #include "socket/sockets.hpp"
 #include "HttpResponse.hpp"
 
+bool request_body_complete(Connection &con, HttpRequest &request, size_t delimiter_pos)
+{
+	std::string body = con._read_buffer.substr(delimiter_pos + 4);
+
+	if (request._method != POST)
+		return (true);
+	if (request.headers.count("transfer-encoding") && request.headers["transfer-encoding"] == "chunked")
+	{
+		if (body.find("0\r\n\r\n") == std::string::npos)
+			return (false);
+		request.parseChunked(request, body);
+		return (true);
+	}
+	if (request.headers.count("content-length"))
+	{
+		request._contentLength = std::strtoul(request.headers["content-length"].c_str(), NULL, 10);
+		if (body.size() < request._contentLength)
+			return (false);
+		request._body = body.substr(0, request._contentLength);
+		return (true);
+	}
+	request._body = body;
+	return (true);
+}
+
 Connection create_client_socket(Connection con)
 {
 	Connection client_socket;
@@ -56,23 +81,8 @@ void handle_pollin_request(Connection &con)
 		std::string headers = con._read_buffer.substr(0, delimiter_pos + 4);
 
 		con._fullReq = con._fullReq.parseRequest(headers);
-		if(con._fullReq._method == POST && con._fullReq._isChunked == true)
-		{
-			build_chunked_body(con);
-		}
-		if(con._fullReq._method == POST)
-		{
-			std::string body = con._read_buffer.substr(delimiter_pos + 4);
-			if(con._fullReq._contentLength == sizeof(body))
-			{
-				con._write_buffer = response(con._fullReq, con._serverConfig.locations, con);
-				if (con._cgi_state != CGI_RUNNING)
-					con._poll_fd.events = POLLOUT;
-				// If CGI is running, poll events will be set by event loop
-				return;
-			}
-			con._fullReq._body = body;
-		}
+		if (!request_body_complete(con, con._fullReq, delimiter_pos))
+			return;
 
 		con._write_buffer = response(con._fullReq, con._serverConfig.locations, con);
 		if (con._cgi_state != CGI_RUNNING)

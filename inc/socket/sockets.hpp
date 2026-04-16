@@ -26,6 +26,8 @@ Connection create_client_socket(Connection con);
 void handle_pollin_request(Connection &con);
 void handle_pollout_request(Connection &con);
 void handle_pollerr_pollhup_request(Connection &con);
+bool request_body_complete(Connection &con, HttpRequest &request, size_t delimiter_pos);
+
 
 // cgi_event_handling.cpp
 void handle_cgi_stdout(Connection &con);
