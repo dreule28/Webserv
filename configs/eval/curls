@@ -1,0 +1,24 @@
+# Multiple ports
+curl http://localhost:8080/
+curl http://localhost:8081/
+
+# Virtual hostnames
+curl --resolve example.com:80:127.0.0.1 http://example.com/
+curl --resolve other.com:80:127.0.0.1 http://other.com/
+
+# Custom 404 page
+curl http://localhost:8080/doesnotexist
+
+# Body limit (adjust string length to test over/under limit)
+curl -X POST -H "Content-Type: plain/text" --data "SHORT" http://localhost:8080/upload
+curl -X POST -H "Content-Type: plain/text" --data "THIS IS WAY TOO LONG FOR THE BODY LIMIT SET ABOVE" http://localhost:8080/upload
+
+# Method restriction — with and without DELETE permission
+curl -X DELETE http://localhost:8080/delete/somefile.txt
+curl -X DELETE http://localhost:8080/no-delete/somefile.txt  # should return 405
+
+# Directory with default file
+curl http://localhost:8080/upload/   # should serve upload.html
+
+# Directory listing
+curl http://localhost:8080/images/   # should show autoindex
