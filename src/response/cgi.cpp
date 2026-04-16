@@ -20,11 +20,11 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 	int	stdin_fds[2];
 
 	if (pipe(stdout_fds) == -1) {
-		std::cerr << RED << "CGI 500: stdout pipe failed: " << strerror(errno) << RESET << std::endl;
+		std::cerr << RED << "CGI 500: stdout pipe failed: " << RESET << std::endl;
 		return 500;
 	}
 	if (pipe(stdin_fds) == -1) {
-		std::cerr << RED << "CGI 500: stdin pipe failed: " << strerror(errno) << RESET << std::endl;
+		std::cerr << RED << "CGI 500: stdin pipe failed: " << RESET << std::endl;
 		return close(stdout_fds[0]), close(stdout_fds[1]), 500;
 	}
 
@@ -34,7 +34,7 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 		close(stdout_fds[1]);
 		close(stdin_fds[0]);
 		close(stdin_fds[1]);
-		std::cerr << RED << "CGI 500: fork failed: " << strerror(errno) << RESET << std::endl;
+		std::cerr << RED << "CGI 500: fork failed: " << RESET << std::endl;
 		return 500;
 	}
 
@@ -79,13 +79,13 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 		std::string script_dir = script_path.substr(0, script_path.find_last_of('/'));
 		std::string script_name = script_path.substr(script_path.find_last_of('/') + 1);
 		if (chdir(script_dir.c_str()) == -1) {
-			std::cerr << "chdir failed: " << strerror(errno) << " (dir: " << script_dir << ")" << std::endl;
+			std::cerr << "chdir failed: " << " (dir: " << script_dir << ")" << std::endl;
 			exit(1);
 		}
 
 		const char *argv[] = {cgi_path.c_str(), script_name.c_str(), nullptr};
 		execve(cgi_path.c_str(), (char* const*)argv, env_ptr.data());
-		std::cerr << "execve failed: " << strerror(errno) << " (cgi_path: " << cgi_path << ", script: " << script_name << ")" << std::endl;
+		std::cerr << "execve failed: " << " (cgi_path: " << cgi_path << ", script: " << script_name << ")" << std::endl;
 		exit(1);
 	}
 

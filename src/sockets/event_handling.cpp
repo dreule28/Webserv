@@ -54,7 +54,7 @@ Connection create_client_socket(Connection con)
 
     	if (fcntl(client_fd, F_SETFL, O_NONBLOCK) == -1)
     	{
-			std::cerr << RED << "fcntl error: " << strerror(errno) << RESET << std::endl;
+			std::cerr << RED << "fcntl error: " << RESET << std::endl;
 			close(client_fd);
       		return (client_socket);
     	}

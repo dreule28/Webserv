@@ -1,1 +1,0 @@
-/home/anakin/Desktop/curriculum/Webserv/test/cgi-bin/hello.py

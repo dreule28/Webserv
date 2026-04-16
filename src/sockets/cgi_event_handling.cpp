@@ -45,16 +45,16 @@ void handle_cgi_stdout(Connection &con) {
 		con._poll_fd.events = POLLOUT;
 	} else {
 		// bytes == -1
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+		if (bytes == -1) {
 			// No data available, try again later
 			return;
 		} else {
 			// Read error
-			std::cerr << RED << "CGI stdout read error: " << strerror(errno) << RESET << std::endl;
+			std::cerr << RED << "CGI stdout read error: " << RESET << std::endl;
 			close(con._cgi_stdout_fd);
 			con._cgi_stdout_fd = -1;
 			con._cgi_state = CGI_ERROR;
-			con._write_buffer = errorResponse(500, "CGI stdout read error: " + std::string(strerror(errno)));
+			con._write_buffer = errorResponse(500, "CGI stdout read error: ");
 			con._poll_fd.events = POLLOUT;
 
 			// Kill CGI process
@@ -85,13 +85,13 @@ void handle_cgi_stdin(Connection &con) {
 			close(con._cgi_stdin_fd);
 			con._cgi_stdin_fd = -1;
 		}
-	} else if (bytes == -1) {
-		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+	} else {
+		if (bytes == -1) {
 			// Can't write now, try again later
 			return;
 		} else {
 			// Write error
-			std::cerr << RED << "CGI stdin write error: " << strerror(errno) << RESET << std::endl;
+			std::cerr << RED << "CGI stdin write error: " << RESET << std::endl;
 			close(con._cgi_stdin_fd);
 			con._cgi_stdin_fd = -1;
 			con._cgi_state = CGI_ERROR;
@@ -106,7 +106,7 @@ void handle_cgi_stdin(Connection &con) {
 				con._cgi_stdout_fd = -1;
 			}
 
-			con._write_buffer = errorResponse(500, "CGI stdin write error: " + std::string(strerror(errno)));
+			con._write_buffer = errorResponse(500, "CGI stdin write error: ");
 			con._poll_fd.events = POLLOUT;
 		}
 	}
