@@ -3,29 +3,37 @@
 
 std::vector<Connection> setup_sockets(Config config)
 {
-    	std::vector<Connection> con;
-	for(size_t i = 0; i < config.servers.size(); i++)
-	{
-		int port = config.servers[i].port;
-		
-      	int socket_fd = create_socket_fds(std::to_string(port));
-      	if(socket_fd == -1)
-      	{
-            	std::cout << RED << "socket_fd creation failed" << std::endl;
-			break;
-      	}
-        
-		Connection fd;
-		fd._poll_fd.fd = socket_fd;
-      	fd._poll_fd.events = POLLIN;
-      	fd._poll_fd.revents = 0;
-      	fd._index = i;
-		fd._serverConfig = config.servers[i];
+    std::vector<Connection> con;
+    std::map<std::string, size_t> listenerIndex; // key: host:port
 
-      	con.push_back(fd);
-    	}
-	print_poll_fds(con);
-    	return(con);
+    for (size_t i = 0; i < config.servers.size(); i++) {
+        const ServerConfig& srv = config.servers[i];
+        std::string key = srv.host + ":" + std::to_string(srv.port);
+
+        if (listenerIndex.count(key)) {
+            con[listenerIndex[key]]._vhosts.push_back(srv);
+            continue; // do not bind again
+        }
+
+        int socket_fd = create_socket_fds(std::to_string(srv.port));
+        if (socket_fd == -1) {
+            std::cout << RED << "socket_fd creation failed" << std::endl;
+            break;
+        }
+
+        Connection fd;
+        fd._poll_fd.fd = socket_fd;
+        fd._poll_fd.events = POLLIN;
+        fd._poll_fd.revents = 0;
+        fd._index = i;
+        fd._serverConfig = srv;      // default
+        fd._vhosts.push_back(srv);   // first vhost on this listener
+
+        listenerIndex[key] = con.size();
+        con.push_back(fd);
+    }
+    print_poll_fds(con);
+    return con;
 }
 
 int create_socket_fds(std::string port)

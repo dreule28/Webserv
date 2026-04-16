@@ -32,7 +32,8 @@ class Connection{
 
         std::string _read_buffer;
 		HttpRequest _fullReq;
-		ServerConfig _serverConfig;
+		ServerConfig _serverConfig;                  // default server for this listener
+        std::vector<ServerConfig> _vhosts;          // all servers sharing same host:port
         size_t _write_index;
         std::string _write_buffer;
 
