@@ -38,6 +38,7 @@ class HttpRequest {
 	void parseHeaders(HttpRequest& req, const std::string& rawReq);
 	void parseBody(HttpRequest& req, const std::string& rawReq);
 	void parseChunked(HttpRequest& req, const std::string& body);
+	void stripMultipart(HttpRequest& req);
 	HttpRequest parseRequest(const std::string& rawReq);
 	void print() const;
 

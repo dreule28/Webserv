@@ -77,6 +77,25 @@ void HttpRequest::parseChunked(HttpRequest& req, const std::string& body) {
 	req._contentLength = req._body.size();
 }
 
+void HttpRequest::stripMultipart(HttpRequest& req) {
+	if (!req.headers.count("content-type"))
+		return;
+	const std::string &ct = req.headers["content-type"];
+	size_t bpos = ct.find("boundary=");
+	if (bpos == std::string::npos)
+		return;
+	std::string boundary = "--" + ct.substr(bpos + 9);
+	size_t part_header_end = req._body.find("\r\n\r\n");
+	if (part_header_end == std::string::npos)
+		return;
+	std::string content = req._body.substr(part_header_end + 4);
+	std::string closing = "\r\n" + boundary + "--";
+	size_t tail = content.find(closing);
+	if (tail != std::string::npos)
+		content.erase(tail);
+	req._body = content;
+}
+
 void HttpRequest::parseBody(HttpRequest& req, const std::string& rawReq) {
 	size_t bodyStart = rawReq.find("\r\n\r\n");
 	if (bodyStart == std::string::npos)

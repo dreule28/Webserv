@@ -21,6 +21,7 @@ bool request_body_complete(Connection &con, HttpRequest &request, size_t delimit
 		if (body.size() < request._contentLength)
 			return (false);
 		request._body = body.substr(0, request._contentLength);
+		request.stripMultipart(request);
 		return (true);
 	}
 	request._body = body;
