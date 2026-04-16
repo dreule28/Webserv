@@ -131,7 +131,7 @@ void ConfigParser::parseServer(std::stringstream& ss, Config& config, std::size_
 			} else if (value == "false") {
 				server.auto_index = false;
 			} else {
-				throw std::runtime_error("Line " + std::to_string(line) + ": auto_index must be 'on' or 'off', got: " + value);
+				throw std::runtime_error("Line " + std::to_string(line) + ": auto_index must be 'true' or 'false', got: " + value);
 			}
 		}
 		else if (token == "client_max_body_size") {
