@@ -78,7 +78,6 @@ std::string HttpResponse::build(void) {
 	if (!body.empty())
 		ss << body;
 
-	// std::cout << ss.str() << std::endl;
 	print();
 
 	return ss.str();
@@ -107,7 +106,6 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 	bool is_dir = false;
 	std::string file_path(buildRealPath(loc, request._path, is_dir));
 
-	// Check if CGI is enabled for this location and the file matches the CGI extension
 	if (loc && loc->cgiEnabled && !is_dir) {
 		size_t dot_pos = file_path.find_last_of('.');
 		if (dot_pos != std::string::npos) {
@@ -124,8 +122,6 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 				if (status != 0)
 					return errorResponse(status, "CGI process failed for: " + file_path);
 
-				// CGI started successfully, return empty string to indicate async processing
-				// The event loop will handle reading CGI output
 				return "";
 			}
 		}
@@ -140,7 +136,6 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 	if (request._method == GET) {
 		HttpResponse response(200);
 		if (is_dir) {
-			// Check if auto_index is enabled before showing directory listing
 			if (!loc->auto_index)
 				return errorResponse(403, "Directory listing disabled for: " + file_path);
 			response.setHeader("Content-Type", "text/html");
@@ -154,27 +149,21 @@ std::string response(const HttpRequest &request, const std::vector<LocationConfi
 		if (loc->clientMaxBodySize != -1 && loc->clientMaxBodySize < (long int)request._body.size())
 			return errorResponse(413, "Request body too large: " + std::to_string(request._body.size()) + " bytes");
 
-		// Extract filename from URI
 		size_t pos = request._path.find_last_of('/');
 		std::string filename = request._path.substr(pos + 1);
 		bool has_filename = !filename.empty();
 
-		// Generate filename if URI doesn't contain one
 		if (!has_filename) {
 			auto now = std::chrono::system_clock::now();
 			auto timestamp = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
 			filename = "upload_" + std::to_string(timestamp);
 		}
 
-		// Construct final file path
 		if (!loc->uploadDir.empty()) {
-			// uploadDir set: always use uploadDir + filename
 			file_path = loc->uploadDir + "/" + filename;
 		} else if (!has_filename) {
-			// No uploadDir, no filename in URI: append generated filename to directory
 			file_path = file_path + "/" + filename;
 		}
-		// else: file_path already resolved correctly from URI
 
 		status = post_method(file_path, request._body);
 

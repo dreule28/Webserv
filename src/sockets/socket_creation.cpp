@@ -4,7 +4,7 @@
 std::vector<Connection> setup_sockets(Config config)
 {
     std::vector<Connection> con;
-    std::map<std::string, size_t> listenerIndex; // key: host:port
+    std::map<std::string, size_t> listenerIndex;
 
     for (size_t i = 0; i < config.servers.size(); i++) {
         const ServerConfig& srv = config.servers[i];
@@ -12,7 +12,7 @@ std::vector<Connection> setup_sockets(Config config)
 
         if (listenerIndex.count(key)) {
             con[listenerIndex[key]]._vhosts.push_back(srv);
-            continue; // do not bind again
+            continue;
         }
 
         int socket_fd = create_socket_fds(std::to_string(srv.port));
@@ -26,8 +26,8 @@ std::vector<Connection> setup_sockets(Config config)
         fd._poll_fd.events = POLLIN;
         fd._poll_fd.revents = 0;
         fd._index = i;
-        fd._serverConfig = srv;      // default
-        fd._vhosts.push_back(srv);   // first vhost on this listener
+        fd._serverConfig = srv;
+        fd._vhosts.push_back(srv);
 
         con.push_back(fd);
         listenerIndex[key] = con.size() - 1;

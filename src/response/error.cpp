@@ -10,13 +10,10 @@ std::string	errorResponse(const int error_code, const std::string msg) {
 
 	std::cerr << RED << msg << RESET << std::endl;
 
-	// std::cout << RED << "METHOD NOT ALLOWED" << RESET << std::endl;
-
 	std::string error_message = HTTP_STATUS_MESSAGES.at(error_code);
 
 	response.setHeader("Content-Type", "text/html");
 
-	// Create simple HTML error page
 	std::ostringstream body_ss;
 	body_ss << "<!DOCTYPE html>\n"
 			<< "<html>\n"

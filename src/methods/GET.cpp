@@ -9,7 +9,6 @@ std::string	get_method(const std::string &file_path, bool is_dir, const HttpRequ
 			<< "<html><body>\n"
 			<< "<h1>Directory: " << file_path << "</h1>\n";
 
-		// Build base path for links, avoiding double slashes
 		std::string base_path = request._path;
 		if (base_path.empty() || base_path[base_path.length() - 1] != '/') {
 			base_path += "/";

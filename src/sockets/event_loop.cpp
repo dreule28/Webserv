@@ -7,21 +7,17 @@ void event_loop(std::vector<Connection> &con)
 	while (true)
 	{
 		std::vector<struct pollfd> poll_array;
-		std::vector<size_t> poll_to_con_index;  // Map poll_array index to connection index
-		std::vector<int> poll_type;  // 0=socket, 1=cgi_stdout, 2=cgi_stdin
+		std::vector<size_t> poll_to_con_index;
+		std::vector<int> poll_type;
 
-		// Build poll array: regular sockets + CGI pipes
 		for (size_t i = 0; i < con.size(); i++)
 		{
-			// Add regular socket
 			poll_array.push_back(con[i]._poll_fd);
 			poll_to_con_index.push_back(i);
 			poll_type.push_back(0);
 
-			// If CGI is running, add CGI pipe FDs
 			if (con[i]._cgi_state == CGI_RUNNING)
 			{
-				// Add CGI stdout for reading
 				if (con[i]._cgi_stdout_fd != -1)
 				{
 					struct pollfd cgi_stdout_poll;
@@ -30,10 +26,9 @@ void event_loop(std::vector<Connection> &con)
 					cgi_stdout_poll.revents = 0;
 					poll_array.push_back(cgi_stdout_poll);
 					poll_to_con_index.push_back(i);
-					poll_type.push_back(1);  // CGI stdout
+					poll_type.push_back(1);
 				}
 
-				// Add CGI stdin for writing (if there's POST body data to write)
 				if (con[i]._cgi_stdin_fd != -1 && con[i]._cgi_stdin_written < con[i]._fullReq._body.size())
 				{
 					struct pollfd cgi_stdin_poll;
@@ -42,7 +37,7 @@ void event_loop(std::vector<Connection> &con)
 					cgi_stdin_poll.revents = 0;
 					poll_array.push_back(cgi_stdin_poll);
 					poll_to_con_index.push_back(i);
-					poll_type.push_back(2);  // CGI stdin
+					poll_type.push_back(2);
 				}
 
 				// Check for CGI timeout
@@ -50,7 +45,6 @@ void event_loop(std::vector<Connection> &con)
 			}
 		}
 
-		// Use 1000ms timeout so CGI timeout checks run periodically
 		int ready = poll(poll_array.data(), poll_array.size(), 1000);
 		if (ready == -1)
 		{
@@ -60,7 +54,6 @@ void event_loop(std::vector<Connection> &con)
 
 		std::vector<Connection> new_clients;
 
-		//check revents for each poll entry
 		for(size_t i = 0; i < poll_array.size(); i++)
 		{
 			size_t con_idx = poll_to_con_index[i];
@@ -68,7 +61,6 @@ void event_loop(std::vector<Connection> &con)
 
 			if (type == 0)
 			{
-				// Regular socket event
 				if(isPOLLIN(poll_array[i]))
 				{
 					std::cout << BLUE << "POLLIN" << RESET << std::endl;
@@ -98,7 +90,6 @@ void event_loop(std::vector<Connection> &con)
 			}
 			else if (type == 1)
 			{
-				// CGI stdout event
 				if (isPOLLIN(poll_array[i]))
 				{
 					std::cout << BLUE << "CGI STDOUT POLLIN" << RESET << std::endl;
@@ -107,13 +98,11 @@ void event_loop(std::vector<Connection> &con)
 				if (isPOLLERR(poll_array[i]) || isPOLLHUP(poll_array[i]))
 				{
 					std::cout << RED << "CGI STDOUT ERROR/HUP" << RESET << std::endl;
-					// Treat as EOF
 					handle_cgi_stdout(con[con_idx]);
 				}
 			}
 			else if (type == 2)
 			{
-				// CGI stdin event
 				if (isPOLLOUT(poll_array[i]))
 				{
 					std::cout << BLUE << "CGI STDIN POLLOUT" << RESET << std::endl;

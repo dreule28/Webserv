@@ -12,8 +12,6 @@
 #include <cerrno>
 #include <cstring>
 
-// Start CGI process in non-blocking mode
-// Returns: 0 if CGI started successfully, error code otherwise
 int	processCgi(HttpRequest &request, const std::string &script_path, const std::string &cgi_path, Connection &conn) {
 	std::cout << YELLOW << "CGI Debug: script_path=" << script_path << ", cgi_path=" << cgi_path << RESET << std::endl;
 	int	stdout_fds[2];
@@ -39,7 +37,6 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 	}
 
 	if (pid == 0) {
-		// Child process - execute CGI script
 		close(stdout_fds[0]);
 		dup2(stdout_fds[1], STDOUT_FILENO);
 		dup2(stdout_fds[1], STDERR_FILENO);
@@ -51,7 +48,6 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 
 		std::vector<std::string> env_strings;
 
-		// Convert method enum to string
 		std::string method_str;
 		switch (request._method) {
 			case GET: method_str = "GET"; break;
@@ -70,26 +66,21 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 		env_strings.push_back("CONTENT_LENGTH=" + std::to_string(request._body.size()));
 		env_strings.push_back("SCRIPT_FILENAME=" + script_path);
 
-		// Server information
 		env_strings.push_back("SERVER_PROTOCOL=" + request._version);
 		env_strings.push_back("SERVER_NAME=" + conn._serverConfig.server_name);
 		env_strings.push_back("SERVER_PORT=" + std::to_string(conn._serverConfig.port));
 		env_strings.push_back("SERVER_SOFTWARE=Webserv/1.0");
 		env_strings.push_back("GATEWAY_INTERFACE=CGI/1.1");
 
-		// Script and path information
 		env_strings.push_back("SCRIPT_NAME=" + request._path);
 		env_strings.push_back("PATH_INFO=");
 
-		// HTTP headers as HTTP_* variables
 		for (std::unordered_map<std::string, std::string>::const_iterator it = request.headers.begin();
 			 it != request.headers.end(); ++it) {
-			// Skip Content-Type and Content-Length as they're handled separately
 			if (it->first == "Content-Type" || it->first == "Content-Length")
 				continue;
 
 			std::string header_name = it->first;
-			// Convert to uppercase and replace hyphens with underscores
 			for (size_t i = 0; i < header_name.length(); i++) {
 				if (header_name[i] == '-')
 					header_name[i] = '_';
@@ -118,18 +109,15 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 		exit(1);
 	}
 
-	// Parent process - set up non-blocking I/O
 	close(stdout_fds[1]);
 	close(stdin_fds[0]);
 
-	// Set pipes to non-blocking mode
 	int flags = fcntl(stdout_fds[0], F_GETFL, 0);
 	fcntl(stdout_fds[0], F_SETFL, flags | O_NONBLOCK);
 
 	flags = fcntl(stdin_fds[1], F_GETFL, 0);
 	fcntl(stdin_fds[1], F_SETFL, flags | O_NONBLOCK);
 
-	// Store CGI state in connection
 	conn._cgi_state = CGI_RUNNING;
 	conn._cgi_pid = pid;
 	conn._cgi_stdout_fd = stdout_fds[0];
@@ -140,19 +128,15 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 	conn._cgi_script_path = script_path;
 	conn._cgi_path = cgi_path;
 
-	return 0;  // Success - CGI is now running
+	return 0;
 }
 
-// Finalize CGI after all output has been read
-// Parses CGI headers and body, populates response
-// Returns: HTTP status code
 int finalizeCgi(Connection &conn, HttpResponse &response) {
 	if (conn._cgi_output.empty()) {
 		std::cerr << RED << "CGI 500: empty output from script: " << conn._cgi_script_path << RESET << std::endl;
 		return 500;
 	}
 
-	// Split CGI output into headers and body at the blank line
 	size_t sep_pos = conn._cgi_output.find("\r\n\r\n");
 	if (sep_pos == std::string::npos)
 		sep_pos = conn._cgi_output.find("\n\n");
@@ -164,7 +148,6 @@ int finalizeCgi(Connection &conn, HttpResponse &response) {
 	std::string cgi_headers = conn._cgi_output.substr(0, sep_pos);
 	response.body = conn._cgi_output.substr(sep_pos + 4);
 
-	// Parse CGI headers line by line
 	std::istringstream header_stream(cgi_headers);
 	std::string line;
 
@@ -179,12 +162,10 @@ int finalizeCgi(Connection &conn, HttpResponse &response) {
 		std::string key = line.substr(0, colon);
 		std::string value = line.substr(colon + 1);
 
-		// Trim leading space from value
 		size_t start = value.find_first_not_of(' ');
 		if (start != std::string::npos)
 			value = value.substr(start);
 
-		// Status header sets the HTTP response code
 		if (key == "Status")
 			std::istringstream(value) >> response.status;
 		else
