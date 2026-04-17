@@ -13,6 +13,6 @@ int delete_method(const std::string &file_path) {
 	if (std::filesystem::remove(file_path))
 		return 204;
 
-	std::cerr << RED << "DELETE 403: failed to remove: " << file_path << " (" << strerror(errno) << ")" << RESET << std::endl;
+	std::cerr << RED << "DELETE 403: failed to remove: " << file_path << RESET << std::endl;
 	return 403;
 }
