@@ -27,5 +27,7 @@ class LocationConfig {
 		std::map<int, std::string> errorPages;
 
 		std::string uploadDir;
-		LocationConfig() : cgiEnabled(false), auto_index(false), clientMaxBodySize(-1), returnCode(0), redirectCode(0) {}
+		LocationConfig() : path(""), root(""), cgiEnabled(false), cgiExtensions(""), cgiPath(""),
+	                   index(""), auto_index(false), clientMaxBodySize(-1),
+	                   returnCode(0), redirectCode(0), redirectTarget(""), uploadDir("") {}
 };

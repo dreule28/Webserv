@@ -70,6 +70,35 @@ int	processCgi(HttpRequest &request, const std::string &script_path, const std::
 		env_strings.push_back("CONTENT_LENGTH=" + std::to_string(request._body.size()));
 		env_strings.push_back("SCRIPT_FILENAME=" + script_path);
 
+		// Server information
+		env_strings.push_back("SERVER_PROTOCOL=" + request._version);
+		env_strings.push_back("SERVER_NAME=" + conn._serverConfig.server_name);
+		env_strings.push_back("SERVER_PORT=" + std::to_string(conn._serverConfig.port));
+		env_strings.push_back("SERVER_SOFTWARE=Webserv/1.0");
+		env_strings.push_back("GATEWAY_INTERFACE=CGI/1.1");
+
+		// Script and path information
+		env_strings.push_back("SCRIPT_NAME=" + request._path);
+		env_strings.push_back("PATH_INFO=");
+
+		// HTTP headers as HTTP_* variables
+		for (std::unordered_map<std::string, std::string>::const_iterator it = request.headers.begin();
+			 it != request.headers.end(); ++it) {
+			// Skip Content-Type and Content-Length as they're handled separately
+			if (it->first == "Content-Type" || it->first == "Content-Length")
+				continue;
+
+			std::string header_name = it->first;
+			// Convert to uppercase and replace hyphens with underscores
+			for (size_t i = 0; i < header_name.length(); i++) {
+				if (header_name[i] == '-')
+					header_name[i] = '_';
+				else
+					header_name[i] = std::toupper(header_name[i]);
+			}
+			env_strings.push_back("HTTP_" + header_name + "=" + it->second);
+		}
+
 		std::vector<char*> env_ptr;
 		for (size_t i = 0; i < env_strings.size(); i++) {
 			env_ptr.push_back(const_cast<char*>(env_strings[i].c_str()));

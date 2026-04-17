@@ -15,5 +15,6 @@ class ServerConfig {
 		std::map<int, std::string> errorPages;
 
 		std::vector<LocationConfig> locations;
-		ServerConfig() : port(0), auto_index(false), clientMaxBodySize(1000000) {}
+		ServerConfig() : port(0), host(""), server_name(""), index(""), root(""),
+	                 auto_index(false), clientMaxBodySize(1000000) {}
 };
