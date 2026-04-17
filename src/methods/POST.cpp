@@ -22,7 +22,7 @@ int	post_method(const std::string &file_path, const std::string &content) {
 	std::ofstream file(file_path, std::ios::trunc);
 
 	if (!file.is_open()) {
-		std::cerr << RED << "POST 500: failed to open file: " << file_path << " (" << strerror(errno) << ")" << RESET << std::endl;
+		std::cerr << RED << "POST 500: failed to open file: " << file_path << RESET << std::endl;
 		return 500;
 	}
 

@@ -2,8 +2,8 @@
 curl http://localhost:8080/
 curl http://localhost:8081/
 
-curl --resolve example.com:8080:127.0.0.1 http://example.com/
-curl --resolve other.com:8080:127.0.0.1 http://other.com/
+curl --resolve example.com:80:127.0.0.1 http://example.com/
+curl --resolve other.com:80:127.0.0.1 http://other.com/
 
 curl http://localhost:8080/doesnotexist
 
