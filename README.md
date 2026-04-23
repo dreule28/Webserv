@@ -1,4 +1,4 @@
-*This project has been created as part of the 42 curriculum by dreule, 4n4k1n, gzovkic.*
+*This project has been created as part of the 42 curriculum by dreule, apregitz, gzovkic.*
 
 # Webserv
 
